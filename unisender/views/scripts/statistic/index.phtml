@@ -1,0 +1,67 @@
+<?php $url = $this->url(array('module' => 'unisender', 'controller' => 'index', 'action' => 'index'), 'default', true); ?>
+<a href="<?= $url; ?>"><i class="fa fa-angle-double-left" aria-hidden="true"></i> <?= $this->translate('Back'); ?></a>
+<div class="calendar">
+    <label for="send_on_schedule"><?= $this->translate('Reporting period: From'); ?></label>
+    <input type="text" name="send_on_schedule[from]" id="send_on_schedule_from" class="send_on_schedule form-control input-sm" size="8" placeholder=" <?= $this->translate('From'); ?>">
+    <br>
+    <label for="send_on_schedule"><?= $this->translate('Reporting period: To'); ?></label>
+    <input type="text" name="send_on_schedule[to]" id="send_on_schedule_to" class="send_on_schedule form-control input-sm" size="8" placeholder=" <?= $this->translate('To'); ?>">
+    <br>
+    <button class="btn btn-danger btn-sm" id="reset_schedule" type="button" title="<?= $this->translate('Remove from the scheduler'); ?>">x</button>
+</div>
+<div id="stat">
+    <?= $this->stat ?>
+</div>
+
+
+
+<script>
+    $(".send_on_schedule").change(function () {
+        var from = $("#send_on_schedule_from").val();
+        var to = $("#send_on_schedule_to").val();
+        var data = {
+            from: from,
+            to: to,
+        };
+        $.ajax({
+            url: "ajax/filter-common-statistic",
+            type: "POST",
+            data: data,
+            success: function (response) {
+//                console.log(response.data.$("#stat").val());
+                $("#stat").empty();
+                $("#stat").append(response.data);
+            }
+        });
+    });
+    $("#send_on_schedule_from").datepicker({
+        changeMonth: true,
+        numberOfMonths: 1,
+        dateFormat: "yy-mm-dd",
+        maxDate: new Date()
+    });
+    $("#send_on_schedule_to").datepicker({
+        changeMonth: true,
+        numberOfMonths: 1,
+        dateFormat: "yy-mm-dd",
+        minDate: new Date()
+    });
+    $('#reset_schedule').click(function () {
+        $('.send_on_schedule').val('');
+        var from = $("#send_on_schedule_from").val();
+        var to = $("#send_on_schedule_to").val();
+        var data = {
+            from: from,
+            to: to,
+        };
+        $.ajax({
+            url: "ajax/filter-common-statistic",
+            type: "POST",
+            data: data,
+            success: function (response) {
+                $("#stat").empty();
+                $("#stat").append(response.data);
+            }
+        });
+    });
+</script>

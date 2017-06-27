@@ -1,0 +1,155 @@
+<div>
+    <div class="row">
+        <div class="col-lg-3">
+            <button id="compressProduct" value="" class="btn btn-primary">Сжатие изображений товара</button>
+        </div>
+        <div class="col-lg-9">
+            <span id="check_img_prod" class="alert-info"></span>
+            <div id="count_prod" style="display: none; text-align: center"></div>
+            <div id="prod_progress" class="progress" style="display: none">
+                <div id="prod_bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                    0%
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-lg-3">
+            <button id="compressCategory" value="" class="btn btn-primary">Сжатие изображений категорий</button>
+        </div>
+        <div class="col-lg-9">
+            <span id="check_img_cat" class="alert-info"></span>
+            <div id="count_cat" style="display: none; text-align: center"></div>
+            <div id="cat_progress" class="progress" style="display: none">
+                <div id="cat_bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                    0%
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <a href="/photoCompression/photo-compression/remove" class="btn btn-primary">Удалить битые ссылки</a>&nbsp;&nbsp;
+    <button id="checkApi" value="" class="btn btn-primary">Проверить ключ</button>&nbsp;&nbsp;
+    <span id="api_key_check"></span><br><br>
+    <form method="POST" action="/photoCompression/photo-compression/save" name="photoCompressionConfig" class="form-group">
+        <input type="text" size="40" name="api_key" value="<?= $this->api_key ?>"><label name="api_key">&nbsp;&nbsp;TinyPNG API key</label><br><br>
+        <input type="text" size="40" name="proxy_set" value="<?= $this->proxy_set ?>"><label name="proxy_set">&nbsp;&nbsp;Proxy (например http://user:pass@192.168.0.1:8080)</label><br><br>
+        <button type="submit" class="btn btn-primary">Сохранить настройки</button><br><br>
+    </form>
+</div>
+<table id="err_tab" class="table table-bordered">
+    
+</table>
+<script>
+    $(document).ready(function () {
+        $('#compressProduct').on('click', function () {
+            $.ajax({
+                url: "/photoCompression/photo-compression/compress-all-product",
+                type: "POST",
+                async: true,
+                success: function (respond) {
+                    if (respond != false) {
+                        $('#count_prod').prop('style', 'display: block-inline').text('');
+                        $('#prod_progress').prop('style', 'display: inline');
+                        $('#prod_bar').prop('style', 'width: 0').prop('aria-valuenow', '0').text('0%');
+                        var count = respond.length;
+                        var n = 1;
+                        var error = 0;
+                        for (var i = 0; i < respond.length; i++) {
+                            var data = {
+                                prod_img: respond[i],
+                            };
+                            $.ajax({
+                                url: "/photoCompression/photo-compression/compress-all-product",
+                                type: "POST",
+                                data: data,
+                                async: true,
+                                complete: function (XMLHTTPRequest) {
+                                    if (XMLHTTPRequest.status > 399) {                                   
+                                        $('#err_tab').append('<tr><td>' + XMLHTTPRequest.status + '</td><td>' + XMLHTTPRequest.statusText + '</td><td>' + decodeURIComponent(this.data.replace("prod_img=","")) + '</td></tr>');                                        
+                                        error++;
+                                    }
+                                    var percent = Math.round(n / count * 100);
+                                    n++;
+                                    $('#prod_bar').prop('style', 'width: ' + percent + '%').prop('aria-valuenow', percent).text(percent + '%');
+                                    $('#count_prod').text('Всего: ' + count + ' / Осталось: ' + (count - n + 1) + ' / ' + 'Ошибок: ' + error).prop('style', 'text-align: center');
+                                    if (n >= count) {
+                                        setTimeout(function () {
+                                            $('#prod_progress').prop('style', 'display: none');
+                                            $('#count_prod').prop('style', 'display: none').text('');
+                                        }, 3000);
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        $('#check_img_prod').text('Изображения требующие сжатия не найдены');
+                    }
+                }
+            });
+        });
+
+        $('#compressCategory').on('click', function () {
+            $.ajax({
+                url: "/photoCompression/photo-compression/compress-all-category",
+                type: "POST",
+                async: true,
+                success: function (respond) {
+                    if (respond != false) {
+                        $('#count_cat').prop('style', 'display: block-inline').text('');
+                        $('#cat_progress').prop('style', 'display: inline');
+                        $('#cat_bar').prop('style', 'width: 0').prop('aria-valuenow', '0').text('0%');
+                        var count = respond.length;
+                        var n = 1;
+                        var error = 0;
+                        for (var i = 0; i < respond.length; i++) {
+                            var data = {
+                                cat_img: respond[i],
+                            };
+                            $.ajax({
+                                url: "/photoCompression/photo-compression/compress-all-category",
+                                type: "POST",
+                                data: data,
+                                async: true,
+                                complete: function (XMLHTTPRequest) {
+                                    if (XMLHTTPRequest.status > 399) {                                   
+                                        $('#err_tab').append('<tr><td>' + XMLHTTPRequest.status + '</td><td>' + XMLHTTPRequest.statusText + '</td><td>' + decodeURIComponent(this.data.replace("cat_img=","")) + '</td></tr>');                                        
+                                        error++;
+                                    }
+                                    var percent = Math.round(n / count * 100);
+                                    n++;
+                                    $('#cat_bar').prop('style', 'width: ' + percent + '%').prop('aria-valuenow', percent).text(percent + '%');
+                                    $('#count_cat').text('Всего: ' + count + ' / Осталось: ' + (count - n + 1) + ' / ' + 'Ошибок: ' + error).prop('style', 'text-align: center');
+                                    if (n >= count) {
+                                        setTimeout(function () {
+                                            $('#cat_progress').prop('style', 'display: none');
+                                            $('#count_cat').prop('style', 'display: none').text('');
+                                        }, 3000);
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        $('#check_img_cat').text('Изображения требующие сжатия не найдены');
+                    }
+                }
+            });
+        });
+
+        $('#checkApi').on('click', function () {
+            $.ajax({
+                url: "/photoCompression/photo-compression/check-api-key",
+                type: "POST",
+                success: function (respond) {
+                    $('#api_key_check').empty().prop('class', '');
+                    if (respond === 1) {
+                        $('#api_key_check').append('Валидация прошла успешно').prop('class', 'alert-success');
+                    } else {
+                        $('#api_key_check').append('Неверный ключ').prop('class', 'alert-danger');
+                    }
+                }
+            });
+        });
+    });
+</script>

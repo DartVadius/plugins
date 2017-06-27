@@ -1,0 +1,11 @@
+<?php $url = $this->url(array('module' => 'unisender', 'controller' => 'index', 'action' => 'index'), 'default', true); ?>
+<a href="<?= $url; ?>"><i class="fa fa-angle-double-left" aria-hidden="true"></i> <?= $this->translate('Back'); ?></a>
+<div class="title-left"><?= $this->title; ?></div>
+<div id="mailer-subject-html-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <?php echo $this->form; ?>
+            <?php print_r($this->html); ?>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,111 @@
+<div class="col-xs-12">
+
+    <a class="btn btn-link" href="/unisender"><i class="fa fa-angle-double-left "></i> <?= $this->translate('Back'); ?></a>
+
+    <br><br>
+
+    <form enctype="application/x-www-form-urlencoded" action="/unisender/index/send" method="POST" class="form-inline">
+        <input type="text" value="<?=$this->template_id?>" name="template_id" hidden="true">
+        <input type="text" value="<?=$this->template_type?>" name="template_type" hidden="true">
+        <input type="text" value="<?=$this->contact_list_id?>" name="contact_list_id" hidden="true">
+        <button id="send" class="btn btn-primary send-project" name="send"><?= $this->translate('Send'); ?></button><i id="workout"class="fa fa-spinner fa-spin fa-2x fa-fw" style="display: none"></i>
+        <br><br>
+        <label for="name"><?= $this->translate('Mailing subject'); ?>:</label>
+        <input class="form-control input-sm project-name js-length-message js-symbols-formatter-all" data-key-space-id="true" data-max-length-id="50" type="text" name="name" id="name" value="<?= $this->project['name'] ?>">
+        <br><br>
+
+        <label for="send_on_schedule"><?= $this->translate('To schedule'); ?>:</label>
+        <input type="text" name="send_on_schedule[date]" id="send_on_schedule_date" class="send_on_schedule form-control input-sm" size="8" placeholder=" <?= $this->translate('Date'); ?>" value="<?= $this->project['send_on_schedule_date'] ?>">
+        <span><?= $this->translate('Time'); ?></span>
+        <input type="text" name="send_on_schedule[hour]" id="send_on_schedule_hour" class="send_on_schedule form-control input-sm js-int-formatter js-only-positive" size="5" placeholder="<?= $this->translate('HH'); ?>" value="<?= $this->project['send_on_schedule_hour'] ?>">
+        <span>:</span>
+        <input type="text" name="send_on_schedule[minute]" id="send_on_schedule_minute" class="send_on_schedule form-control input-sm js-int-formatter js-only-positive" size="5" placeholder="<?= $this->translate('MM'); ?>" value="<?= $this->project['send_on_schedule_minute'] ?>">
+        <button class="btn btn-danger btn-sm" id="reset_schedule" type="button" title="<?= $this->translate('Remove from the scheduler'); ?>">x</button>
+        <br><br>
+        
+        <p>
+            <span class="name"><?= $this->translate('Contact list'); ?>: </span>
+            <span class="value"><?= $this->contact_list ?></span>
+        </p>
+    </form>
+    <?php if (!empty($this->project)): ?>
+        <div class="letter-preview">
+            <h5><?= $this->translate('Message body'); ?></h5>
+            <?php if ($this->sj['editable'] == 1): ?>
+                <span class="controls">
+                    <?php $url = $this->url(array('controller' => 'subject', 'action' => $sj['action'], 'id' => $sj['id'])); ?>
+                    <a href="<?= $url ?>" title="<?= $this->translate('Edit'); ?>"><i class="fa fa-cog"></i></a>
+                    <?php $url = $this->url(array('controller' => 'subject', 'action' => $sj['action'], 'del' => $sj['id'])); ?>
+                    <a href="<?= $url ?>" title="<?= $this->translate('Delete'); ?>" onclick="return confirm('<?= $this->translate('Delete'); ?>?')"><i class="fa fa-times"></i></a>
+                </span>
+            <?php endif ?>
+            <p class="subject"><?= $this->translate('Subject'); ?>: <?= $this->project['subject'] ?></p>
+            <?php if (isset($this->project['html']) && !empty($this->project['html'])): ?>
+                <div class="html"><?= $this->project['html'] ?></div>
+            <?php endif; ?>
+            <?php if (isset($this->products)): ?>
+                <table class="prod-list">
+                    <tr class="headers">
+                        <td class="name" style="width: 70%;"><?= $this->translate('Name'); ?></td>
+                        <td class="price-h" style="width: 25%;"><?= $this->translate('Retail price'); ?></td>
+                    </tr>
+                    <?php foreach ($this->products as $id => $p): ?>
+                        <tr class="product-row" data-product-id="<?= $id; ?>">
+                            <td class="name"><?= $p['name'] ?></td>
+                            <td class="price-h"><?= round($p['price'], 2) ?> UAH</td>
+                        </tr>
+                    <?php endforeach ?>
+                </table>
+            <?php endif; ?>
+        </div>
+    <?php endif ?>
+
+
+</div>
+
+
+<script>
+    translation1 = <?= json_encode($this->translate('Are you sure you want to cancel the mailer')); ?>;
+    translation2 = <?= json_encode($this->translate('Mailer completed and moved to archive')); ?>;
+    translation3 = <?= json_encode($this->translate('Sent')); ?>;
+    translation4 = <?= json_encode($this->translate('Sending')); ?>;
+    translation5 = <?= json_encode($this->translate('Failed to send')); ?>;
+    translation6 = <?= json_encode($this->translate('Error')); ?>;
+    translation7 = <?= json_encode($this->translate('Repeat')); ?>;
+    translation8 = <?= json_encode($this->translate('Mailer will not be sent, as all contacts from the list of recipients are not subscribed to the mailer')); ?>;
+    translation9 = <?= json_encode($this->translate('Enter a name of the mailer')); ?>;
+    translation10 = <?= json_encode($this->translate("The entered value 'hours' should not be more than 23")); ?>;
+    translation11 = <?= json_encode($this->translate("The entered value of 'minutes' should not be more than 59")); ?>;
+    translation12 = <?= json_encode($this->translate('Exposed time is less than current')); ?>;
+    translation13 = <?= json_encode($this->translate('Scheduling is not saved because you did not enter all the data. Would you like to continue')); ?>;
+    $(function () {
+        $.datepicker.setDefaults(
+                $.extend($.datepicker.regional[<?= json_encode(substr(Zend_Registry::get('Zend_Locale'), 0, 2)); ?>])
+                );
+
+
+        $("#send_on_schedule_date").datepicker({
+            changeMonth: true,
+            numberOfMonths: 3,
+            dateFormat: "dd-mm-yy",
+            minDate: new Date()
+        });
+
+        $('#reset_schedule').click(function () {
+            $('.send_on_schedule').val('');
+        });
+        $('#send').click(function(){
+            $('#workout').attr('style', 'dispaly: block');
+        });
+    });
+</script>
+
+<script type="text/javascript">
+
+    window.onbeforeunload = function () {
+        if ($("input[name=start_mailer]").length > 0) {
+            return translation1 + "?";
+        }
+    }
+
+</script>

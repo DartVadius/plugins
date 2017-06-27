@@ -1,0 +1,23 @@
+<a href="<?= $this->link . '/brand'?>" class="btn btn-primary">Go to the Brands</a>
+<a href="<?= $this->link . '/manufacturer'?>" class="btn btn-primary">Go to the Manufacturers</a><br><br>
+<form method="POST" action="/branding/branding/save" name="brandingConfig" class="form-group">
+    <button type="submit" class="btn btn-primary">Save settings</button>
+    <h3>Select feature as brand</h3>
+    <select name="brand">
+        <option value="0">No brand</option>
+        <?php if ($this->features): ?>
+            <?php foreach ($this->features as $value): ?>
+                <option value="<?= $value['id'] ?>" <?=($value['id'] == $this->brand)? 'selected' : ''?>><?= $value['name'] ?></option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
+    <h3>Select feature as manufacturer</h3>
+    <select name="manufacturer">
+        <option value="0">No manufacturer</option>
+        <?php if ($this->features): ?>
+            <?php foreach ($this->features as $value): ?>
+                <option value="<?= $value['id'] ?>" <?=($value['id'] == $this->manufacturer)? 'selected' : ''?>><?= $value['name'] ?></option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
+</form>

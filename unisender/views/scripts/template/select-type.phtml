@@ -1,0 +1,21 @@
+<?php $url = $this->url(array('module'=>'unisender','controller'=>'template', 'action'=>'edit-template', 'template_id' => $this->template['id']),'default'); ?>
+<a class="btn btn-link" href="<?=$url?>"><?=$this->translate('Edit'); ?></i></a>
+
+<?php $url = $this->url(array('module'=>'unisender','controller'=>'template', 'action'=>'list'),'default'); ?>
+<a class="btn btn-link" href="<?=$url?>"><?=$this->translate('To the list'); ?></a>
+<form action="" method="post" class="form-inline">
+    <h1><?=$this->template['name']?></h1>
+
+    <?php
+        echo str_replace([
+            '{$input}',
+            '{$textarea}'
+        ],[
+            '<input class="form-control" type="text" name="input[]">',
+            '<textarea class="form-control" name="textarea[]"></textarea>'
+        ], $this->template['html']);
+    ?>
+    <button class="btn btn-primary" name="submit" value="html"><?=$this->translate('Create html template'); ?></button>
+    |
+    <button class="btn btn-primary" name="submit" value="voting"><?=$this->translate('Create the template of voting'); ?></button>
+</form>

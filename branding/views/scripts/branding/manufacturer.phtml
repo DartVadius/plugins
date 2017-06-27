@@ -1,0 +1,18 @@
+<?php if (!empty($this->manufacturers)): ?>
+    <?php $count = 0; ?>
+    <?php foreach ($this->manufacturers as $manufacturer): ?>
+        <?= ($count == 0) ? '<div class="row">' : '' ?>
+        <?php $count++ ?>
+        <div class="col-lg-3">
+            <a href="<?= '/manufacturer_product/' . $manufacturer['feature_value'] ?>"><?= (!empty($manufacturer['feature_picture'])) ? '<img src="' . $manufacturer['feature_picture'] . '">' : $manufacturer['feature_value'] ?></a>
+        </div>
+        <?php if ($count == 4): $count = 0 ?>
+            </div>
+        <?php endif; ?>
+    <?php endforeach; ?>
+    <?php if ($count != 4): ?>
+        </div>
+    <?php endif; ?>
+<?php else: ?>
+    <p>No manufacturers found</p>    
+<?php endif; ?>

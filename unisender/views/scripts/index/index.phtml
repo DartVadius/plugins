@@ -1,0 +1,143 @@
+
+<?php $url = $this->url(['module' => 'unisender', 'controller' => 'index', 'action' => 'config'], 'default', true); ?>
+<a href="<?= $url; ?>"><i class="fa fa-cog" aria-hidden="true"></i> <?= $this->translate('Config'); ?> </a> | 
+<?php $url = $this->url(array('module' => 'unisender', 'controller' => 'statistic', 'action' => 'index'), 'default', true); ?>
+<a href="<?= $url; ?>"> <?= $this->translate('Statistic'); ?><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+<form enctype="application/x-www-form-urlencoded" action="/unisender/index/project/" method="post" class="new-project">
+
+    <span class="header"><?= $this->translate('Create mailer'); ?></span>
+
+    <div class="subject step">
+
+        <div class="step-name"><i class="fa fa-envelope-o"></i> <?= $this->translate('Content of the mail message'); ?></div>
+
+        <div class="create-new">
+
+            <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'template', 'action' => 'list',), 'default'); ?>
+            <a class="new button" href="<?= $url ?>"><?= $this->translate('Create from the template'); ?> <i class="fa fa-arrow-circle-o-right"></i></a>
+
+            <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'template', 'action' => 'html'), 'default'); ?>
+            <a class="new button" href="<?= $url ?>"><?= $this->translate('Create html message'); ?> <i class="fa fa-arrow-circle-o-right"></i></a>
+
+            <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'template', 'action' => 'voting'), 'default'); ?>
+            <a class="new button" href="<?= $url ?>"><?= $this->translate('Create voting'); ?> <i class="fa fa-arrow-circle-o-right"></i></a>
+
+        </div>
+
+        <div><?= $this->translate('Saved templates'); ?>:</div>
+        <div class="select-list">
+            <?php if (!empty($this->subjects)): ?>
+                <?php foreach ($this->subjects as $sj): ?>
+                    <label>
+                        <input type="radio" name="template" id="template" value="<?= $sj['id'] ?>&<?= $sj['type'] ?>">
+                        <div class="info">
+                            <div class="name">
+                                <?= $sj['name'] ?>
+                                <div class="template-controls">
+
+                                    <?php if ($sj['editable'] == 1): ?>
+                                        <span class="controls">
+                                            <?php $del = ($sj['action'] == 'html') ? 'html-delete' : 'voting-delete' ?>
+                                            <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'template', 'action' => $sj['action'], 'id' => $sj['id']), 'default'); ?>
+                                            <a href="<?= $url ?>" title="<?= $this->translate('Edit'); ?>"><i class="fa fa-cog"></i></a>
+                                            <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'template', 'action' => $del, 'id' => $sj['id']), 'default'); ?>
+                                            <a href="<?= $url ?>" title="<?= $this->translate('Delete'); ?>" onclick="return confirm('<?= $this->translate('Delete'); ?>?')"><i class="fa fa-times"></i></a>
+                                        </span>
+                                    <?php endif ?>
+                                    <span class="template_type">(<?= $this->translate('Type'); ?>: <?= $this->translate($sj['type']) ?>)</span>
+                                </div>
+                            </div>
+                            <div class="description"><?= $sj['description'] ?></div>
+                            <div class="create"><?= $this->translate('Created/edited'); ?>: <?= $sj['modify_datetime'] ?></div>
+                        </div>
+
+                    </label>
+                <?php endforeach ?>
+            <?php else: ?>
+                <div style="text-align: center;" class="no-values"><?= $this->translate('No saved templates'); ?></div>
+            <?php endif; ?>
+
+        </div>
+
+    </div>
+
+    <div class="contact-lists step">
+
+        <div class="step-name"><i class="fa fa-list left"></i><?= $this->translate('The list of recipients'); ?></div>
+
+        <?php $url = $this->url(array('module' => 'contact', 'controller' => 'custom-list', 'action' => 'view-list'), 'default'); ?>
+        <a class="new button new-contact-list view_te"><?= $this->translate('Create'); ?> <i class="fa fa-arrow-circle-o-right"></i></a>
+
+        <div><?= $this->translate('Saved lists'); ?>:</div>
+
+        <div class="select-list">
+            <?php if (!empty($this->contact_lists)): ?>
+                <?php foreach ($this->contact_lists as $list): ?>
+                    <label>
+                        <input type="radio" name="recipients" id="contact_list" value="<?= $list["type"] ?>&<?= $list["id"]; ?>">
+                        <div class="info">
+                            <div class="name">
+                                <?= $list['name'] ?>
+
+                                <?php if (!isset($list['no_control']) && $list['type'] != 'filter'): ?>
+                                    <span class="controls">
+                                        <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'contact-list', 'action' => 'view', 'id' => $list['id']), 'default'); ?>
+                                        <a href="<?= $url ?>" title="<?= $this->translate('Edit'); ?>"><i class="fa fa-cog"></i></a>
+                                        <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'contact-list', 'action' => 'delete', 'id' => $list['id']), 'default'); ?>
+                                        <a href="<?= $url ?>" title="<?= $this->translate('Delete'); ?>" onclick="return confirm('<?= $this->translate('Delete'); ?>?')"><i class="fa fa-times"></i></a>
+                                    </span>
+                                <?php endif ?>
+                                <?php if (!empty($list['type_name'])): ?>
+                                    <span class="template_type">(<?= $list['type_name']; ?>)</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="description"><?= $list['description'] ?></div>
+                        </div>
+
+                    </label>
+                <?php endforeach ?>
+            <?php endif; ?>
+        </div>
+
+    </div>
+
+    <div class="clr"></div>
+
+
+    <button class="btn btn-primary" name="new-project" id="new-project" disabled="disabled"><?= $this->translate('Create'); ?> <i class="fa fa-paper-plane"></i></button>
+
+</form>
+
+<script>
+
+    translation1 = <?= json_encode($this->translate('Mailer creating')); ?>;
+    translation2 = <?= json_encode($this->translate('Mailer name')); ?>;
+    translation3 = <?= json_encode($this->translate('Subject of message')); ?>;
+    translation4 = <?= json_encode($this->translate('Save')); ?>;
+    translation5 = <?= json_encode($this->translate('Close')); ?>;
+    translation6 = <?= json_encode($this->translate('Enter a name of the mailer')); ?>;
+    translation7 = <?= json_encode($this->translate('Enter mailer subject')); ?>;
+    translation8 = <?= json_encode($this->translate('Create a list of recipients')); ?>;
+    translation9 = <?= json_encode($this->translate('Name of the list')); ?>;
+
+    jQuery(function ($) {
+
+        var template = false;
+        var contact_list = false;
+
+        $('input').click(function () {
+            if ($(this).attr('id') == 'template') {
+                template = true;
+            } else {
+                contact_list = true;
+            }
+            if (template == true && contact_list == true) {
+                $('#new-project').prop('disabled', false);
+            }
+        });
+    });
+
+    if ($('.btn.btn-primary').dblclick() == true)
+        false;
+
+</script>

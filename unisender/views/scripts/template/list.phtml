@@ -1,0 +1,21 @@
+<?php $url = $this->url(array('module' => 'unisender', 'controller' => 'index', 'action' => 'index'), 'default', true); ?>
+<a href="<?= $url; ?>"><i class="fa fa-angle-double-left" aria-hidden="true"></i> <?= $this->translate('Back'); ?></a>
+<div class="create-new">
+    <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'template', 'action' => 'add-template'), 'default'); ?>
+    <a class="btn btn-primary" href="<?= $url ?>"><?= $this->translate('Create new'); ?> <i class="fa fa-plus-circle"></i></a>
+</div>
+<ul>
+    <?php if (!empty($this->template_list)): ?>
+        <?php foreach ($this->template_list as $template): ?>
+            <li>
+                <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'template', 'action' => 'select-type', 'template_id' => $template['id']), 'default'); ?>
+                <a class="mailer-template-list-link btn btn-link" href="<?= $url ?>"><?= $template['name'] ?></a>
+
+                <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'template', 'action' => 'edit-template', 'template_id' => $template['id']), 'default'); ?>
+                <a type="<?= $this->translate('Edit'); ?>" style="display: none;" href="<?= $url ?>"><i class="fa fa-pencil"></i></a>
+                <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'template', 'action' => 'delete-template', 'template_id' => $template['id']), 'default'); ?>
+                <a title="<?= $this->translate('Delete'); ?>" onclick="return confirm('<?= $this->translate('Delete'); ?>?')" style="display: none;" href="<?= $url ?>"><i class="fa fa-times"></i></a>
+            </li>
+        <?php endforeach ?>
+    <?php endif; ?>
+</ul>

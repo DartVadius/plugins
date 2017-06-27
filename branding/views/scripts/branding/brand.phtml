@@ -1,0 +1,18 @@
+<?php if (!empty($this->brands)): ?>
+    <?php $count = 0; ?>
+    <?php foreach ($this->brands as $brand): ?>
+        <?= ($count == 0) ? '<div class="row">' : '' ?>
+        <?php $count++ ?>
+        <div class="col-lg-3">
+            <a href="<?= '/brand_product/' . $brand['feature_value'] ?>"><?= (!empty($brand['feature_picture'])) ? '<img src="' . $brand['feature_picture'] . '">' : $brand['feature_value'] ?></a>
+        </div>
+        <?php if ($count == 4): $count = 0 ?>
+            </div>
+        <?php endif; ?>
+    <?php endforeach; ?>
+    <?php if ($count != 4): ?>
+        </div>
+    <?php endif; ?>
+<?php else: ?>
+    <p>No brands found</p>    
+<?php endif; ?>

@@ -1,0 +1,33 @@
+<?php $url = $this->url(array('module' => 'unisender', 'controller' => 'index', 'action' => 'index'), 'default', true); ?>
+<a href="<?= $url; ?>"><i class="fa fa-angle-double-left" aria-hidden="true"></i> <?= $this->translate('Back'); ?></a>
+<?php if (!empty($this->config)): ?>
+    <form action="" method="post" enctype="application/x-www-form-urlencoded" class="zend_form row">
+        <?php foreach ($this->config as $gate => $params): ?>
+            <h2><?= $gate ?></h2>
+            <?php foreach ($params as $id => $param): ?>
+                <?php foreach ($param as $key => $value): ?>
+                    <input type="text" name="<?= $id ?>" value="<?= $value ?>" size="50"> <?= $key ?><br><br>                    
+                <?php endforeach; ?>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+        <button id="save_config" class="btn btn-success" name="test_send"><?= $this->translate('Save'); ?></button><span style="display: none" id="icon-working"><i class="fa fa-refresh fa-spin fa-2x fa-fw"></i></span>            
+    </form>
+<?php endif; ?>
+<script>
+    $(document).ready(function () {
+        $('#save_config').on('click', function (e) {
+            $('#icon-working').attr('style', 'display:inline');
+            e.preventDefault();
+            var s = $('form').serializeArray();
+            console.log(s);
+            $.ajax({
+                url: "update",
+                type: "POST",
+                data: s,
+                success: function (response) {
+                    $('#icon-working').attr('style', 'display:none');
+                }
+            });
+        });
+    });
+</script>

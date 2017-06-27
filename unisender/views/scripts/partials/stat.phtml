@@ -1,0 +1,15 @@
+<h2><?= $this->translate('Delivery statistics') ?></h2>
+<?php if (!empty($this->data)): ?>
+    <?php foreach ($this->data as $project): ?>
+        <div>
+            <a href="statistic/project-statistic/id/<?=$project['id']?>"><h3><?= $this->translate('Subject') . ': ' . $project['subject'] ?></h3></a>
+            <p><?= $this->translate('Sending time') . ': ' . $project['start_time'] ?></p>
+            <p><?= $this->translate('Status') . ': ' . $this->translate($project['status']) ?></p>
+            <p><?= $this->translate('Contact list') . ': ' . $project['list_name'] ?></p>
+            <p><?= $this->translate('Contact list owner') . ': ' . $project['list_owner'] ?></p>
+            <p><?= $this->translate('Sender') . ': ' . $project['sender_name'] ?></p>
+        <?php endforeach; ?>
+    </div>
+<?php else: ?>
+    <p><?= $this->translate('No projects aviable'); ?></p>
+<?php endif; ?>

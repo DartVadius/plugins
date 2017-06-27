@@ -1,0 +1,52 @@
+<div class="row">
+    <br>
+    <div class="col-lg-12">
+        <?php $col = $this->col; ?>
+        <table class="table table-responsive">
+            <?php if (!empty($this->links)): ?>
+                <?php $count = $this->links; ?>
+                <?php foreach ($this->url as $urls): ?>
+                    <?php if (!empty($urls)): ?>
+                        <?php foreach ($urls as $name => $link): ?>
+                            <?php if ($col == $this->col): ?>
+                                <?php $tag = 0; ?>
+                                <tr>
+                                <?php endif; ?>
+                                <?php $col--; ?>
+                                <td><a href="<?= $link ?>"><?= $name ?></a></td>
+                                <?php if ($count-- == 1) {
+                                    break 2;
+                                } ?>
+                            <?php if ($col == 0): ?>
+                                </tr>
+                                <?php $col = $this->col ?>
+                                <?php $tag = 1; ?>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <?php foreach ($this->url as $urls): ?>
+                    <?php if (!empty($urls)): ?>
+                        <?php foreach ($urls as $name => $link): ?>
+                                <?php if ($col == $this->col): ?>
+                                    <?php $tag = 0; ?>
+                                <tr>
+                                <?php endif; ?>
+                                <?php $col--; ?>
+                                <td><a href="<?= $link ?>"><?= $name ?></a></td>
+                            <?php if ($col == 0): ?>
+                                </tr>
+                                <?php $col = $this->col ?>
+                                <?php $tag = 1; ?>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <?php if ($tag === 0): ?>
+                </tr>
+        <?php endif; ?>
+        </table>
+    </div>    
+</div>

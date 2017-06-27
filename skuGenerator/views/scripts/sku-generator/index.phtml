@@ -1,0 +1,40 @@
+
+<form method="POST" action="/skuGenerator/sku-generator/save" name="skuGenerator" class="form-group">
+    <button id="save-conf"type="submit" class="btn btn-primary">Save configuration</button> 
+    <a href="/skuGenerator/sku-generator/create" class="btn btn-primary">Generator</a>
+    <p id="msg" style="display: none" class="alert alert-danger">Wrong template: use latin letters,  whole numbers and acceptable delimeters</p>
+    <?php foreach ($this->types as $type): ?>
+        <div class="row">
+            <div class="col-lg-6">
+                <h3>Template <?= $type['name'] ?></h3>
+                <p><input type="text" value="<?= $this->config[$type['id']] ?>" name="template[<?= $type['id'] ?>]" size="80" id="<?= $type['id'] ?> "></p>                
+                <p>Acceptable values of delimeters: - / \ () []</p>
+            </div>
+            <div class="col-lg-6">
+                <h3>Parts of template <?= $type['name'] ?></h3>
+                <?php foreach ($this->features as $feature): ?>
+                    <?php if ($feature['type_id'] == $type['id']): ?>
+                        <p>{{<?= $feature['code'] ?>}}</p>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+                        <p>{{id}}</p>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</form>
+<script>
+    $(document).ready(function(){
+        $('#save-conf').on('click', function(e){
+            $('#msg').hide();
+            var s = $('form').serializeArray();
+            var reg = /[a-zA-Z0-9\/\\[\](){}-]+$/;
+            jQuery.each(s, function(i, val){
+                var res = reg.test(val.value);
+                if (!res) {
+                    $('#msg').show();
+                    e.preventDefault();
+                }
+            });        
+        });
+    });
+</script>

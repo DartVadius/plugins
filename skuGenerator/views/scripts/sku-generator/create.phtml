@@ -1,0 +1,10 @@
+
+<a href="/skuGenerator/sku-generator/index" class="btn btn-primary">Settings</a>
+<?php foreach ($this->types as $type): ?>
+<h3>Product type: <?= $type['name'] ?></h3>
+    <form method="POST" action="/skuGenerator/sku-generator/create" name="<?= $type['id'] ?>" class="form-group">
+        <input type="radio" name="<?= $type['id'] ?>" value="all"> <span>All sku's</span><br>
+        <input type="radio" name="<?= $type['id'] ?>" value="empty" checked> <span>Empty sku's</span><br>
+        <button type="submit" class="btn btn-primary">Generate</button>
+    </form>
+<?php endforeach; ?>

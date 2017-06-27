@@ -1,0 +1,85 @@
+<form action="" method="post" enctype="application/x-www-form-urlencoded" class="zend_form row">
+    <div class="col-xs-8">
+        <table>
+            <tr>
+                <td colspan="7">
+                    <div class="search-contact-mailer">
+                        <input type="text" name="search_contacts_mailer" size="20" class="form-control" placeholder="<?= $this->translate('Add a contact'); ?>" />
+                        <div class="search-contact-container-mailer unvisible"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="contact-list-header"></th>
+                <th class="contact-list-header"><?= $this->translate('Firstname'); ?></th>
+                <th class="contact-list-header">email</th>
+                <th class="contact-list-header"><?= $this->translate('General news'); ?></th>
+                <th class="contact-list-header"><?= $this->translate('Company news'); ?></th>
+                <th class="contact-list-header"><?= $this->translate('The list of random products'); ?></th>
+                <th class="contact-list-header"><?= $this->translate('Price-lists'); ?></th>
+            </tr>
+            <?php if (!empty($this->contacts)): ?>
+                <?php foreach ($this->contacts as $id => $c): ?>
+                    <tr>
+                        <td><input class="checkbox-contact" type="checkbox" name="check[<?= $id ?>]" value="<?= $id ?>"></td>
+                        <td class="contact-list-name">
+                            <?php $url = $this->url(array('module' => 'mailer', 'controller' => 'settings', 'action' => 'subscribe-set', 'contact_id' => $id)); ?>
+                            <a href="<?= $url ?>" target="_blank"><?= $c['name'] != '' ? $c['name'] : $this->translate('No name') ?></a>
+                        </td>
+                        <td class="contact-list-element"><?= $c['email'] ?></td>
+                        <td class="contact-list-element">
+                            <div>
+                                <span><i class="fa <? if ($c['news_general'] == 1):?>fa-check<?else:?>fa-times<?endif?>"></i></span>
+                            </div>
+                        </td>
+                        <td class="contact-list-element">
+                            <div>
+                                <span><i class="fa <? if ($c['news_company'] == 1):?>fa-check<?else:?>fa-times<?endif?>"></i></span>
+                            </div>
+                        </td>
+                        <td class="contact-list-element">
+                            <div>
+                                <span><i class="fa <? if ($c['interest_rand'] == 1):?>fa-check<?else:?>fa-times<?endif?>"></i></span>
+                            </div>
+                        </td>
+                        <td class="contact-list-element">
+                            <div>
+                                <span><i class="fa <? if ($c['interest'] == 1):?>fa-check<?else:?>fa-times<?endif?>"></i></span>
+                            </div>
+                        </td>
+                    <input type="hidden" name="contacts[]" value="<?= $id ?>">
+                    </tr>
+                <?php endforeach ?>
+            <?php else: ?>
+                <tr class="no-contacts-in-list"><td colspan="6" align="center">*<?= $this->translate('No contacts'); ?>*</td></tr>
+            <?php endif; ?>
+        </table>
+    </div>
+
+    <div class="col-xs-4">
+
+        <?php if ($this->message): ?>
+            <?= $this->message ?><br>
+        <?php endif ?>
+
+        <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'index', 'action' => 'index'), 'default', true) ?>
+        <a class="btn btn-default" href="<?= $url ?>"><i class="fa fa-angle-double-left "></i> <?= $this->translate('Back'); ?></a>
+
+        <button name="save" class="save-contact-list btn btn-primary"><i class="fa fa-floppy-o"></i> <?= $this->translate('Save'); ?></button>
+        <br><br>
+
+        <button class="del-checked-contacts btn btn-danger" name="del-checked" title="<?= $this->translate('Remove checked from the list'); ?>"><i class="fa fa-times"></i> <?= $this->translate('Remove checked'); ?></button>
+        <br><br>
+
+        <label for="name" class="required"><?= $this->translate('Name'); ?></label><br>
+        <input type="text" id="name" name="name" value="<?= $this->list['name'] ?>" class="delivery-name form-control">
+        <textarea name="description" class="form-control" cols="30" rows="3" placeholder="<?= $this->translate('Short description'); ?>"><?= $this->list['description'] ?></textarea>
+
+    </div>
+    <?php if (isset($this->list_id)): ?>
+        <input type="hidden" name="contact_list_id" value="<?= $this->list_id; ?>" />
+    <?php endif; ?>
+</form>
+<script>
+    translation1 = <?= json_encode($this->translate('Fill in the fields marked with an asterisk')); ?>;
+</script>

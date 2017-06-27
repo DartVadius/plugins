@@ -1,0 +1,147 @@
+<style>
+    #sortable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+    #sortable li { margin: 5px 5px 5px 5px; padding: 3px; padding-left: 5px; font-size: 1.4em;}
+    #sortable li span { position: absolute; margin-left: -1.3em; }
+</style>
+<div>
+    <form method="POST" action="/siteMapHtml/site-map/save" name="siteMapConfig" class="form-group">
+        <button type="submit" class="btn btn-primary">Сохранить настройки</button>
+        <a href="<?= (empty($this->urlmap)) ? $this->link . '/site-map_index' : $this->link . $this->urlmap; ?>" class="btn btn-primary">Перейти к Карте</a>
+        <a href="/siteMapHtml/site-map/drop" class="btn btn-primary">Сбросить кэш</a><br><br>
+        <div class="row">
+            <div class="col-lg-4">
+                <h2>Число колонок для вывода ссылок</h2>
+                <input type="radio" name="col_num" value="1" <?= (empty($this->col_num) || ($this->col_num == 1)) ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;1 колонка</label><br>
+                <input type="radio" name="col_num" value="2" <?= ($this->col_num == 2) ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;2 колонки</label><br>
+                <input type="radio" name="col_num" value="3" <?= ($this->col_num == 3) ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;3 колонки</label><br>
+                <input type="radio" name="col_num" value="4" <?= ($this->col_num == 4) ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;4 колонки</label><br>
+            </div>
+            <div class="col-lg-4">
+                <h2>URL для подмены</h2>
+                <input type="text" name="urlmap" value="<?= $this->urlmap ?>"><label name="urlmap">&nbsp;&nbsp;URL для подмены</label><br>
+            </div>
+            <div class="col-lg-4">
+                <h2>Количество ссылок на странице</h2>
+                <input type="text" size="5" name="num_url" value="<?= $this->num_url ?>"><br>
+                <span>пустое значение или 0 - вывод без ограничений</span>
+            </div>            
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <h2>Вывод категорий</h2>
+                <input type="radio" name="all_cat" value="1" <?= ($this->all_cat === '1') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Да</label><br>
+                <input type="radio" name="all_cat" value="0" <?= ($this->all_cat === '0') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Нет</label><br>
+            </div>
+            <div class="col-lg-4">
+                <h2>Вывод скрытых категорий</h2>
+                <input type="radio" name="hidden_cat" value="1" <?= ($this->hidden_cat === '1') ? 'checked' : '' ?> <?= ($this->all_cat === '1') ? '' : 'disabled' ?>><label name="radio">&nbsp;&nbsp;Да</label><br>
+                <input type="radio" name="hidden_cat" value="0" <?= ($this->hidden_cat === '0') ? 'checked' : '' ?> <?= ($this->all_cat === '1') ? '' : 'disabled' ?>><label name="radio">&nbsp;&nbsp;Нет</label><br>
+            </div>
+            <div class="col-lg-4">
+                <h2>Вывод подкатегорий</h2>
+                <input type="radio" name="sub_cat" value="1" <?= ($this->sub_cat === '1') ? 'checked' : '' ?> <?= ($this->all_cat === '1') ? '' : 'disabled' ?>><label name="radio">&nbsp;&nbsp;Да</label><br>
+                <input type="radio" name="sub_cat" value="0" <?= ($this->sub_cat === '0') ? 'checked' : '' ?> <?= ($this->all_cat === '1') ? '' : 'disabled' ?>><label name="radio">&nbsp;&nbsp;Нет</label><br>
+                <input type="text" size="5" name="sub_deep" value="<?= $this->sub_deep ?>" <?= ($this->all_cat === '1') ? '' : 'disabled' ?>><label name="sub_deep">&nbsp;&nbsp;Уровень подкатегории</label><br>
+                <span>категории выводятся от корня и до указанного уровня</span><br>
+                <span>'нет' или 1 - корневая директория</span><br>
+                <span>пустое значение или 0 - вывод всего списка категорий</span><br>                
+            </div>            
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <h2>Вывод ссылок на галереи</h2>
+                <input type="radio" name="galery" value="1" <?= ($this->galery === '1') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Да</label><br>
+                <input type="radio" name="galery" value="0" <?= ($this->galery === '0') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Нет</label><br>
+            </div>
+            <div class="col-lg-4">
+                <h2>Вывод ссылок на записи блога</h2>
+                <input type="radio" name="blog" value="1" <?= ($this->blog === '1') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Да</label><br>
+                <input type="radio" name="blog" value="0" <?= ($this->blog === '0') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Нет</label><br>
+            </div>
+            <div class="col-lg-4">
+                <h2>Вывод информационных страниц товара</h2>
+                <input type="radio" name="info_page" value="1" <?= ($this->info_page === '1') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Да</label><br>
+                <input type="radio" name="info_page" value="0" <?= ($this->info_page === '0') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Нет</label><br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <h2>Вывод ссылок на теги</h2>
+                <input type="radio" name="tags_url" value="1" <?= ($this->tags_url === '1') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Да</label><br>
+                <input type="radio" name="tags_url" value="0" <?= ($this->tags_url === '0') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Нет</label><br>
+            </div>
+            <div class="col-lg-4">
+                <h2>Вывод информационных страниц сайта</h2>
+                <input type="radio" name="info_site" value="1" <?= ($this->info_site === '1') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Да</label><br>
+                <input type="radio" name="info_site" value="0" <?= ($this->info_site === '0') ? 'checked' : '' ?>><label name="radio">&nbsp;&nbsp;Нет</label><br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                <h2>Порядок вывода ссылок</h2>
+                <ul id="sortable">
+                    <?php if (empty($this->sort)): ?>
+                        <li class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"><input type="hidden" name="sort[]" value="category"></span>Категория</li>
+                        <li class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"><input type="hidden" name="sort[]" value="product"></span>Товар</li>
+                        <li class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"><input type="hidden" name="sort[]" value="galery"></span>Галереи</li>
+                        <li class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"><input type="hidden" name="sort[]" value="blog"></span>Записи блога</li>
+                        <li class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"><input type="hidden" name="sort[]" value="info"></span>Информационные страницы товара</li>
+                        <li class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"><input type="hidden" name="sort[]" value="tags"></span>Теги</li>
+                        <li class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"><input type="hidden" name="sort[]" value="site"></span>Информационные страницы сайта</li>
+                    <?php else: ?>
+                        <?php foreach ($this->sort as $value): ?>                    
+                            <li class="ui-state-default"><span class="ui-icon ui-icon-arrowthick-2-n-s"><input type="hidden" name="sort[]" value="<?= $value ?>"></span>
+                                    <?php
+                                    switch ($value) {
+                                        case $value == 'category':
+                                            echo 'Категории';
+                                            break;
+                                        case $value == 'product':
+                                            echo 'Товар';
+                                            break;
+                                        case $value == 'galery':
+                                            echo 'Галереи';
+                                            break;
+                                        case $value == 'blog':
+                                            echo 'Записи блога';
+                                            break;
+                                        case $value == 'info':
+                                            echo 'Информационные страницы товара';
+                                            break;
+                                        case $value == 'tags':
+                                            echo 'Теги';
+                                            break;
+                                         case $value == 'site':
+                                            echo 'Информационные страницы сайта';
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    ?>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </ul>
+            </div>
+
+        </div>
+    </form>
+</div>
+<script>
+    $(function () {
+        $("#sortable").sortable();
+        $("#sortable").disableSelection();
+    });
+    $('input[name=all_cat]').change(function(){
+        if ($('input[name=all_cat]:checked').val() == '1') {
+            $('input[name=hidden_cat]').prop('disabled', false);
+            $('input[name=sub_cat]').prop('disabled', false);
+            $('input[name=sub_deep]').prop('disabled', false);
+        }
+        if ($('input[name=all_cat]:checked').val() == '0') {
+            $('input[name=hidden_cat]').prop('disabled', true);
+            $('input[name=sub_cat]').prop('disabled', true);
+            $('input[name=sub_deep]').prop('disabled', true);
+        }
+    });
+</script>

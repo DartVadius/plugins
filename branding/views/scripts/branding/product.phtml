@@ -1,0 +1,65 @@
+<?php
+//Zend_Debug::dump($this->params);
+?>
+
+<div class="container category p-l-0">
+    <div class="col-lg-3 sidebar">
+        <?php if (count($this->products)): ?>
+            <div class="filters ajax" id="filters">
+                <form id="search-product" name="search-product" method="get"
+                      data-loading="/themes/<?= Zend_Registry::get('theme') ?>/img/loading16.gif">
+
+                    <div class="header-bl"><?= $this->translate('Filter'); ?></div>
+                        Характеристики
+                    <?php if (count($this->products)): ?>
+                        <div class="filter-param">
+                            <div class="filter-name"><?= $this->translate('Price'); ?></div>
+                            <div class="slider">
+                                <?= $this->translate('From'); ?> <input type="text" class="min js-int-formatter" name="price_min" id="minCost"
+                                       placeholder="<?= round($this->prices['minPrice']) ?>" <?php if (isset($this->params['price_min'])): ?> value="<?= $this->params['price_min'] ?>"
+                                       <?php endif; ?> >
+                                <?= $this->translate('To'); ?> <input type="text" class="max js-int-formatter" name="price_max" id="maxCost"
+                                       placeholder="<?= ceil($this->prices['maxPrice']) ?>" <?php if (isset($this->params['price_max'])): ?> value="<?= $this->params['price_max'] ?>"
+                                       <?php endif; ?> >
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <input type="hidden" name="sort" id="sort" value="">
+
+                    <input type="submit" class="btn btn-default" value="<?= $this->translate('Show'); ?>">
+
+                    <input type="button" class="btn btn-default" id="reset-filters" value="<?= $this->translate('Clear filter'); ?>">
+                        <?php if ($this->category) : ?>
+                            <br><br>
+                            <fieldset>
+                                <p><legend class="header-bl"><?= $this->translate('Categories'); ?></legend></p>
+                                <?php foreach ($this->category as $key => $value): ?>
+                            <input class="brand" type="checkbox" id="<?= $key ?>" name="category[<?=$key?>]" value="<?= $key ?>" <?= (!empty($this->params['category']) && array_key_exists($key, $this->params['category']))? 'checked' : '' ?>> <?= $value ?><br>
+                                <?php endforeach; ?>
+                            </fieldset>
+                        <?php endif; ?>
+                </form>
+            </div>
+        <?php endif; ?>
+
+    </div>
+    <div class="col-lg-9" style="padding-left: 25px;">
+        <h3><?= $this->brand ?></h3>
+        <div id="products">
+            <?php if (count($this->products)): ?>
+
+                <?php
+                echo $this->partial('/partials/products.phtml', [
+                    'products' => $this->products,
+                    'params' => $this->params,
+                    'paginator' => $this->paginator,
+                    'productsCount' => $this->productsCount
+                ]);
+                ?>
+
+            <?php else: ?>
+                <p>No products found</p>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>

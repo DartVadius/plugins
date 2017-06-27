@@ -1,0 +1,78 @@
+<div id="statistic">
+    <?php $url = $this->url(array('module' => 'unisender', 'controller' => 'statistic', 'action' => 'index'), 'default', true); ?>
+    <a href="<?= $url; ?>"><i class="fa fa-angle-double-left" aria-hidden="true"></i> <?= $this->translate('Back'); ?></a>
+    <h3><?= $this->translate('Project name') . ': ' . $this->project['name'] ?></h3>
+    <p><?= $this->translate('Project type') . ': ' . $this->project['template_type'] ?></p>
+    <p><?= $this->translate('Mails total') . ': ' . $this->common_stats['total'] ?></p>
+    <p><?= $this->translate('Mails sent') . ': ' . $this->common_stats['sent'] ?></p>
+    <p><?= $this->translate('Read unique') . ': ' . $this->common_stats['read_unique'] ?></p>
+    <p><?= $this->translate('Read total') . ': ' . $this->common_stats['read_all'] ?></p>
+    <p><?= $this->translate('Links clicked unique') . ': ' . $this->common_stats['clicked_unique'] ?></p>
+    <p><?= $this->translate('Links clicked total') . ': ' . $this->common_stats['clicked_all'] ?></p>
+    <p><?= $this->translate('Unsubscribers') . ': ' . $this->common_stats['unsubscribed'] ?></p>
+    <p><?= $this->translate('Marked as spam') . ': ' . $this->common_stats['spam'] ?></p>
+    <?php if (!empty($this->delivery_stats)): ?>
+        <h3><?= $this->translate('Detailed statistic') ?></h3>
+        <table class="table table-condensed table-bordered">
+            <tr>
+                <th><?= $this->translate('User name') ?></th>
+                <th><?= $this->translate('User email') ?></th>
+                <th><?= $this->translate('Status') ?></th>
+            </tr>
+            <?php foreach ($this->delivery_stats as $user): ?>
+                <tr>
+                    <td><?= $user['user_name'] ?></td>
+                    <td><?= $user['email'] ?></td>
+                    <td><?= $this->translate($user['send_result']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    <?php endif; ?>
+    <?php if (!empty($this->links)): ?>
+        <h3><?= $this->translate('Links visited') ?></h3>
+        <table class="table table-condensed table-bordered">
+            <tr>
+                <th><?= $this->translate('User name') ?></th>
+                <th><?= $this->translate('User email') ?></th>
+                <th><?= $this->translate('Link') ?></th>
+                <th><?= $this->translate('Number of clicks') ?></th>
+            </tr>
+            <?php foreach ($this->links as $link): ?>
+                <tr>
+                    <td><?= $link['user_name'] ?></td>
+                    <td><?= $link['email'] ?></td>
+                    <td><?= $link['url'] ?></td>
+                    <td><?= $link['count'] ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+        <h3><?= $this->translate('Links count') ?></h3>
+        <table class="table table-condensed table-bordered">
+            <tr>
+                <th><?= $this->translate('Url') ?></th>
+                <th><?= $this->translate('Click') ?></th>
+            </tr>
+            <?php foreach ($this->links_count as $url => $count): ?>
+                <tr>
+                    <td><?= $url ?></td>
+                    <td><?= $count ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    <?php endif; ?>
+    <?php if (!empty($this->voting)): ?>
+        <h3><?= $this->translate('Voting Results') ?></h3>
+        <table class="table table-condensed table-bordered">
+            <tr>
+                <th><?= $this->translate('Variant name') ?></th>
+                <th><?= $this->translate('Result') ?></th>
+            </tr>
+            <?php foreach ($this->voting as $vote): ?>
+                <tr>
+                    <td><?= $vote['name'] ?></td>
+                    <td><?= $vote['count'] ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    <?php endif; ?>
+</div>
