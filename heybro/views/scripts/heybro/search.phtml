@@ -1,0 +1,5 @@
+<?php foreach ($this->arr['animal'] as $product): ?>
+    <div>
+        <input type="checkbox" class="<?= $this->arr['id'] ?>" value="<?= $product['id'] ?>" name="<?= $this->arr['id'] ?>[<?= $product['name'] ?>]" checked><label for="<?= $this->arr['id'] ?>"><?= $product['name'] ?></label>
+    </div>
+<?php endforeach; ?>

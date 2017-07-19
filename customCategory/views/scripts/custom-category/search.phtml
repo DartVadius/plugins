@@ -1,0 +1,5 @@
+<?php foreach ($this->arr['cat'] as $category): ?>
+    <div>
+        <input type="checkbox" class="<?= $this->arr['id'] ?>" value="<?= $category['id'] ?>" name="<?= $this->arr['id'] ?>[]"><label for="<?= $this->arr['id'] ?>"><?= $category['name'] ?></label>
+    </div>
+<?php endforeach; ?>

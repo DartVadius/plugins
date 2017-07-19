@@ -1,0 +1,64 @@
+
+
+<?php if (!empty($this->urls)): ?>
+    <form id="filter" method="POST" action="/customCategory/custom-category/save" name="customCategoryConfig" class="form-group">
+        <div class="col-lg-6">
+            <?php foreach ($this->urls as $key => $value): ?>
+                <?= $key ?>
+                <br>
+                <input type="text" class="search <?= $key ?>" name="search[<?= $key ?>]">
+                <input type="button" id="<?= $key ?>" name="search" value="<?= $this->translate('Search') ?>">
+                <div class="<?= $key ?> sortable" >
+                    <?php if (!empty($value)): ?>
+                        <?php foreach ($value as $cat => $id): ?>
+                            <div>
+                                <i class="fa fa-arrows-v" aria-hidden="true"></i>
+                                <input type="checkbox" class="<?= $key ?>" value="<?= $id ?>" name="<?= $key ?>[]" checked="true"><label for="<?= $key ?>"><?= $cat ?></label>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <br>
+            <?php endforeach; ?>
+            <button type="submit" class="btn btn-primary"><?= $this->translate('Save') ?></button>
+        </div>
+
+
+
+    </form>
+<?php endif; ?>
+<script>
+    $(document).ready(function () {
+        $(':button[name=search]').click(function (e) {
+            e.preventDefault();
+            var id = $(this).attr('id');
+            var search = $('.search').filter('.' + id).val();
+            var checkbox = [];
+            $(':checkbox.' + id).each(function () {
+                checkbox.push($(this).attr('value'));
+            });
+            console.log(checkbox);
+            $('.' + id).empty();
+            if (search.length > 0) {
+                var data = {
+                    id: id,
+                    search: search,
+                    checkbox: checkbox,
+                }
+                $.ajax({
+                    url: '/customCategory/custom-category/search',
+                    type: 'POST',
+                    data: data,
+                    success: function (responce) {
+                        $('.' + responce.id).append(responce.html);
+                    }
+                });
+            }
+
+        });
+        $(function () {
+            $(".sortable").sortable();
+            $(".sortable").disableSelection();
+        });
+    });
+</script>

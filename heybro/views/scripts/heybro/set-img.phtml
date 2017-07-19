@@ -1,0 +1,65 @@
+<?= $this->breadcrumbs($this->breadcrumbs); ?>
+<div class="row" id="card-data">
+    <?= $this->card ?>
+</div>
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"><?= $this->translate('Fill in the card') ?></h4>
+            </div>
+            <div class="modal-body">
+                <form name="card-data" method="POST" id="card-edit">
+                    <div class="form-group">
+                        <label for="name"><?= $this->translate('Add name') ?></label>
+                        <input type="text" name="name" class="form-control input-sm required"><br>
+                        <label for="date"><?= $this->translate('Add birthday date') ?></label>
+                        <input type="text" name="date" class="form-control input-sm required" id="date"><br>
+                        <select class="form-control input-sm required" name="character">
+                            <option value="" disabled selected><?= $this->translate('Select character') ?></option>
+                            <?php if (!empty($this->character)): ?>
+                                <?php foreach ($this->character as $value): ?>
+                                    <option value="<?= $value ?>"><?= $this->translate($value) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?= $this->translate('Close') ?></button>
+                <button type="button" class="btn btn-primary" id="data-edit"><?= $this->translate('Save') ?></button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    $(function () {
+        $.datepicker.setDefaults(
+                $.extend($.datepicker.regional["<?= substr(new Zend_Locale($options['resources']['locale']['default']), 0, 2); ?>"])
+                );
+        $("#date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            numberOfMonths: 1,
+            dateFormat: "dd-mm-yy",
+            yearRange: "1900:",
+            closeText: 'Закрыть',
+            prevText: '&#x3c;Пред',
+            nextText: 'След&#x3e;',
+            currentText: 'Сегодня',
+            monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+            monthNamesShort: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн',
+                'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+            dayNames: ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'],
+            dayNamesShort: ['вск', 'пнд', 'втр', 'срд', 'чтв', 'птн', 'сбт'],
+            dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+            weekHeader: 'Нед',
+        });
+    });
+
+
+</script>

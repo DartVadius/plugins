@@ -1,0 +1,218 @@
+<?= $this->breadcrumbs($this->breadcrumbs); ?>
+<div class="row">
+    <div class="col-lg-6">
+        <div class="pic"></div>
+        <div class="spritespin">
+            <img src="./cards/start.png">
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <form action="" class="" id="">
+            <h3><?= $this->translate('Toy') ?></h3>
+            <select name="toy">
+                <option value="0"><?= $this->translate('Select value') ?></option>
+                <?php if (!empty($this->animal)): ?>
+                    <?php foreach ($this->animal as $value): ?>
+                        <option value="<?= $value['product_id'] ?>"><?= $value['product_name'] ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+            <h3><?= $this->translate('Jacket') ?></h3>
+            <select name="topic">
+                <option value="0"><?= $this->translate('Select value') ?></option>
+                <?php if (!empty($this->topic)): ?>
+                    <?php foreach ($this->topic as $value): ?>
+                        <option value="<?= $value['product_id'] ?>"><?= $value['product_name'] ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+            <h3><?= $this->translate('Trousers') ?></h3>
+            <select name="pants">
+                <option value="0"><?= $this->translate('Select value') ?></option>
+                <?php if (!empty($this->pants)): ?>
+                    <?php foreach ($this->pants as $value): ?>
+                        <option value="<?= $value['product_id'] ?>"><?= $value['product_name'] ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+        </form>
+        <br>
+        <form name="addtoy" method="post" id="addtoy">
+            <span data-price="0"
+                  class="price nowrap"
+                  id="add2cart_price">0,00 UAH</span>
+            <input type="hidden" name="price"
+                   value="0,00 UAH"
+                   id="add2cart_price_hidden">
+            <span class="qty"> × <input class="form-control js-only-positive js-not-empty"
+                                        style="display: inline !important;" type="text" name="quantity"
+                                        value="1"></span>
+            <input type="submit" form="addtotoy" value="Купить"
+                   class="btn btn-primary addtocart">
+        </form>
+    </div>
+</div>
+<script>
+    $('document').ready(function () {
+//        canvas = document.getElementsByClassName('spritespin-canvas');
+//        context = canvas.getContext("2d");
+//        var img = new Image();
+//        img.src = "cards/start.jpg";
+//        context.drawImage(img, 0, 0);
+
+        $('select').change(function () {
+            var toy = $('select[name=toy]').val();
+            var topic = $('select[name=topic]').val();
+            var pants = $('select[name=pants]').val();
+            var path = toy + topic + pants;
+            var data = {
+                toy: toy,
+                topic: topic,
+                pants: pants,
+                folder: path
+            }
+            $.ajax({
+                url: '/heybro/ajax/check-product',
+                method: 'POST',
+                data: data,
+                success: function (response) {
+                    $('.spritespin').children('img').remove();
+                    var arr = [];
+                    arr = [1, response.count];
+                    $('.spritespin').spritespin({
+                        source: SpriteSpin.sourceArray("./cards/" + path + "/{frame}.jpg", {
+                            frame: arr,
+                            digits: 3
+                        }),
+                        width: 480,
+                        height: 612,
+                        frameTime: 120,
+                        animate: true,
+                        sense: -1
+                    });
+
+                    if (response.count > 0) {
+                        $('.pic').children('img').remove();
+                        $('.spritespin').show();
+                    } else {
+                        $('.spritespin').hide();
+                        $('.pic').children('img').remove();
+                        $('.pic').append('<img src="./cards/start.png">');
+                    }
+//                    console.log(response.price);
+                    $('#add2cart_price').text(response.price + ' UAH');
+                    $('#add2cart_price').attr('data-price', response.price);
+                    $('#add2cart_price_hidden').val(response.price);
+                }
+            });
+        });
+
+        $('.addtocart').click(function (e) {
+            e.preventDefault();
+            var toy = $('select[name=toy]').val();
+            var topic = $('select[name=topic]').val();
+            var pants = $('select[name=pants]').val();
+            var quantity = $('input[name=quantity]').val();
+            if (toy > 0) {
+                var id_val = toy;
+                var id = {
+                    id: id_val
+                }
+                $.ajax({
+                    url: '/heybro/ajax/get-sku',
+                    data: id,
+                    method: 'POST',
+                    success: function (res) {
+                        var data = {
+                            sku_id: res.id,
+                            quantity: quantity
+                        };
+                        $.ajax({
+                            url: '/cart/add',
+                            data: data,
+                            method: 'POST',
+                            success: function (respond) {
+                                $('#js-cart').html('');
+                                $('#js-cart').html(respond.cart);
+                            }
+                        });
+                    }
+                });
+
+            } else {
+                return false;
+            }
+            moveToCart($(this));
+            if (topic > 0) {
+                var id_val = topic;
+                var id = {
+                    id: id_val
+                }
+                $.ajax({
+                    url: '/heybro/ajax/get-sku',
+                    data: id,
+                    method: 'POST',
+                    success: function (res) {
+                        var data = {
+                            sku_id: res.id,
+                            quantity: quantity
+                        };
+                        $.ajax({
+                            url: '/cart/add',
+                            data: data,
+                            method: 'POST',
+                            success: function (respond) {
+                                $('#js-cart').html('');
+                                $('#js-cart').html(respond.cart);
+                            }
+                        });
+                    }
+                });
+
+            }
+            if (pants > 0) {
+                var id_val = pants;
+                var id = {
+                    id: id_val
+                }
+                $.ajax({
+                    url: '/heybro/ajax/get-sku',
+                    data: id,
+                    method: 'POST',
+                    success: function (res) {
+                        var data = {
+                            sku_id: res.id,
+                            quantity: quantity
+                        };
+                        $.ajax({
+                            url: '/cart/add',
+                            data: data,
+                            method: 'POST',
+                            success: function (respond) {
+                                $('#js-cart').html('');
+                                $('#js-cart').html(respond.cart);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        function moveToCart(el) {
+            var t = el, e = t.clone(), b = $('#js-cart'), o = t.position(), po = t.parent().offset(), bo = b.offset();
+
+            e.css({top: o.top + 'px', left: o.left + 'px', position: 'absolute'});
+            t.parent().append(e);
+            e.animate({
+                top: -po.top + bo.top + (b.height() - t.height()) / 2,
+                left: -po.left + bo.left + (b.width() - t.width()) / 2, opacity: 0.5
+
+            }, 500, function () {
+                //$(this).css({left: 0, top: 0, position: 'static'}).appendTo(b);
+                $(this).remove();
+            });
+        }
+
+    });
+
+</script>

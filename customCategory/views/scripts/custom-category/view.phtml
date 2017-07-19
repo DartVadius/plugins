@@ -1,0 +1,23 @@
+
+<?php if (!empty($this->categories)): ?>
+    <?php foreach ($this->categories as $category): ?>
+        <div class="row">
+            <div class="col-lg-6">
+                <a href="/category/<?= $category['parent']['url'] ?>"><?= $category['parent']['name'] ?></a>
+                <br>
+                <img src="/modules/shop/category_img/<?= $category['parent']['id'] ?>/logo_<?= $category['parent']['id'] ?>.200x0.<?= $category['parent']['category_logo'] ?>">
+                <br>
+            </div>
+            <div class="col-lg-6">
+                <?php if (!empty($category['child'])): ?>
+                    <?php foreach ($category['child'] as $child): ?>
+                        <a href="/category/<?= $child['url'] ?>"><?= $child['name'] ?></a>
+                        <br>
+                        <img src="/modules/shop/category_img/<?= $child['id'] ?>/logo_<?= $child['id'] ?>.200x0.<?= $child['category_logo'] ?>">
+                        <br>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>

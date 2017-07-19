@@ -1,0 +1,65 @@
+<div class="col-lg-6">
+    <h4><?= $this->translate('Download') ?></h4>
+    <?php if (!empty($this->cardsReady)): ?>
+        <?php foreach ($this->cardsReady as $card): ?>
+            <a href="/cards/<?= $card['code'] ?>.jpg" id="<?= $card['code'] ?>" class="card-download"><?= $card['code'] . ' ' . date_create($card['date'])->Format('d-m-Y') . ' ' . $card['product_name'] ?></a><br>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</div>
+<div class="col-lg-6">
+    <h4><?= $this->translate('Complete card') ?></h4>
+    <?php if (!empty($this->cardsEdit)): ?>
+        <?php foreach ($this->cardsEdit as $edit): ?>
+            <a href="#" id="<?= $edit['code'] ?>" class="card-edit" data-toggle="modal" data-target="#myModal"><?= $edit['code'] . ' ' . date_create($edit['date'])->Format('d-m-Y') . ' ' . $edit['product_name'] ?></a>
+            <br>
+        <?php endforeach; ?>
+    <?php endif; ?>
+</div>
+<script>
+    $(document).ready(function () {
+        var code;
+        $('a').click(function () {
+            code = $(this).attr('id');
+        });
+        $('#data-edit').click(function (e) {
+            console.log($('select[name="character"]').val());
+            if ($('input[name="name"]').val() == '') {
+                $('input[name="name"]').removeClass('has-success').addClass('alert-warning');
+                return false;
+            } else {
+                $('input[name="name"]').removeClass('alert-warning');
+            }
+            if ($('input[name="date"]').val() == '') {
+                $('input[name="date"]').removeClass('alert-warning').addClass('alert-warning');
+                return false;
+            } else {
+                $('input[name="date"]').removeClass('alert-warning');
+            }
+            if ($('select[name="character"]').val() === null) {
+                $('select[name="character"]').removeClass('has-success').addClass('alert-warning');
+                return false;
+            } else {
+                $('select[name="character"]').removeClass('alert-warning');
+            }
+
+            $('#myModal').modal('hide');
+            var form = $('#card-edit').serialize();
+            var user_id = <?= Zend_Auth::getInstance()->getIdentity()['id'] ?>;
+            var data = {
+                form: form,
+                code: code,
+                user_id: user_id
+            };
+            $.ajax({
+                url: "/heybro/ajax/edit",
+                type: 'POST',
+                data: data,
+                success: function (response) {
+                    console.log(response);
+                    $('#card-data').empty();
+                    $('#card-data').html(response.html);
+                }
+            });
+        });
+    });
+</script>
