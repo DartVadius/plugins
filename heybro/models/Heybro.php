@@ -51,10 +51,11 @@ class Heybro_Model_Heybro extends Zend_Db_Table_Abstract {
     }
     
     /**
-     * get array of edited cards by user Id
+     * get array of cards by user id
      * 
-     * @param int $id
-     * @return boolean | array
+     * @param int $id       user Id
+     * @param int $ready    0 or 1 (if 1 -> get edited images, if 0 -> get not edited images)
+     * @return boolean
      */
     public function getCardsByUserId($id, $ready = 1) {
         $sql = $this->select()->setIntegrityCheck(FALSE)->from($this->_name)
@@ -66,23 +67,6 @@ class Heybro_Model_Heybro extends Zend_Db_Table_Abstract {
         }
         return FALSE;
     }
-    
-    /**
-     * get array of none edited cards by user id
-     * 
-     * @param int $id
-     * @return boolean | array
-     */
-//    public function getCardsEditByUserId($id) {
-//        $sql = $this->select()->setIntegrityCheck(FALSE)->from($this->_name)
-//                ->where('user_id = ?', $id)
-//                ->where('ready_img = 0')
-//                ->joinLeft('shop_product', 'shop_product.id = heybro_plugin.product_id', 'shop_product.name as product_name');
-//        if ($res = $this->fetchAll($sql)) {
-//            return $res->toArray();
-//        }
-//        return FALSE;
-//    }
     
     /**
      * set 'ready' flag by card code

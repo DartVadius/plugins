@@ -19,23 +19,31 @@ class Heybro_HeybroController extends Zend_Controller_Action {
             $configModel->insert(['plugins_id' => $pluginId, 'name' => 'character', 'params' => '']);
         }
         if (!is_dir('cards')) {
-            mkdir('cards', 0775);
+            mkdir('cards', 0777);
         }
     }
 
     public function indexAction() {
         $this->view->headScript()->appendFile('/js/dropzone.js');
-        $typeModel = new Application_Model_DbTable_Type();
         $heybroModel = new Heybro_Model_HeybroProduct();
+//        $pluginModel = new Application_Model_DbTable_Plugins();
+//        $configModel = new Application_Model_DbTable_PluginsSettings();
+//        $pluginId = $pluginModel->getBySystemName('heybro')['id'];
+//        $config = $configModel->getSettingsByPluginsID($pluginId);
+//        $config['character'] = json_decode($config['character'], TRUE);
+        $this->view->animal = $heybroModel->findByType('animal');
+        $this->view->topic = $heybroModel->findByType('topic');
+        $this->view->pants = $heybroModel->findByType('pants');
+    }
+    
+    public function cardAction() {
+        $typeModel = new Application_Model_DbTable_Type();
         $pluginModel = new Application_Model_DbTable_Plugins();
         $configModel = new Application_Model_DbTable_PluginsSettings();
         $heybro = new Heybro_Model_Heybro();
         $pluginId = $pluginModel->getBySystemName('heybro')['id'];
         $config = $configModel->getSettingsByPluginsID($pluginId);
         $config['character'] = json_decode($config['character'], TRUE);
-        $this->view->animal = $heybroModel->findByType('animal');
-        $this->view->topic = $heybroModel->findByType('topic');
-        $this->view->pants = $heybroModel->findByType('pants');
         $this->view->types = $typeModel->getTypes();
         $this->view->config = $config;
         $this->view->data = $heybro->getAllFullInfo();
@@ -50,8 +58,6 @@ class Heybro_HeybroController extends Zend_Controller_Action {
         Zend_Controller_Action_HelperBroker::removeHelper('viewRenderer');
         $post = $this->getRequest()->getParams();
         $folder = 'cards/' . $post['toy'] . $post['topic'] . $post['pants'];
-        print_r($_FILES);
-        die;
         if (!is_dir($folder)) {
             mkdir($folder, 0777);
         }
@@ -59,7 +65,6 @@ class Heybro_HeybroController extends Zend_Controller_Action {
         if (is_file($file)) {
             unlink($file);
         }
-
         if (move_uploaded_file($_FILES['file']['tmp_name'], $file)) {
 //            header('Content-Type: image/jpeg');
 //            list($width, $height) = getimagesize($file);
@@ -89,7 +94,7 @@ class Heybro_HeybroController extends Zend_Controller_Action {
     }
 
     /**
-     * save config
+     * save config for cards
      */
     public function saveAction() {
         $pluginModel = new Application_Model_DbTable_Plugins();
@@ -99,18 +104,19 @@ class Heybro_HeybroController extends Zend_Controller_Action {
         $character = [];
         if (!empty($post['character'])) {
             foreach ($post['character'] as $value) {
-                if (!empty(trim($value))) {
+                $tmp = trim($value);
+                if (!empty($tmp)) {
                     $character[] = trim($value);
                 }
             }
         }
         $configModel->update(['params' => $post['type']], "plugins_id = '$pluginId' AND name = 'type'");
         $configModel->update(['params' => json_encode($character)], "plugins_id = '$pluginId' AND name = 'character'");
-        $this->redirect('/heybro');
+        $this->redirect('/heybro/heybro/card');
     }
 
     /**
-     * save product data
+     * save config for products
      */
     public function saveProductAction() {
         $heybroProductModel = new Heybro_Model_HeybroProduct();

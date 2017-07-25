@@ -61,6 +61,7 @@ return [
     'resources' => [
         ['heybro', null],
         ['heybro:heybro', 'heybro'],
+        ['heybro:ajax', 'heybro'],
     ],
     'rules' => [
         'allow' => [

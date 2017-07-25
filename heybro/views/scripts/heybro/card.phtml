@@ -1,0 +1,75 @@
+<div class="row">
+    <div class="col-lg-12">
+        <a href="/heybro/heybro/index" class="btn btn-primary"><?= $this->translate('Config') ?></a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-3">
+        <?php if (!empty($this->types)): ?>
+            <h2><?= $this->translate('Card') ?></h2>
+            <form name="setup" method="POST" action="/heybro/heybro/save">
+                <label><?= $this->translate('Select type') ?></label>
+                <br>
+                <select name="type">
+                    <option value="0"><?= $this->translate('Select type') ?></option>
+                    <?php foreach ($this->types as $type): ?>
+                        <option value="<?= $type['id'] ?>" <?= ($this->config['type'] == $type['id']) ? 'selected' : '' ?>><?= $type['name'] ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <br><br> 
+                <div id="input_fields">
+                    <label><?= $this->translate('Add character') ?></label>
+                    <br>
+                    <input type="text" value="" name="character[]">
+                    <br>
+                    <?php if (!empty($this->config['character'])): ?>
+                        <?php foreach ($this->config['character'] as $character): ?>
+                            <input type="text" value="<?= $character ?>" name="character[]">
+                            <br>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <div id="add-field">
+                    <i class="fa fa-plus-square-o" aria-hidden="true"></i>
+                </div>
+                <button type="submit" class="btn btn-primary"><?= $this->translate('Save') ?></button>
+            </form>
+        <?php endif; ?>
+    </div>
+    <div class="col-lg-9">
+        <?php if (!empty($this->data)): ?>
+            <h2><?= $this->translate('Info') ?></h2>
+            <table id="infoTable">
+                <thead>
+                    <tr>
+                        <th><?= $this->translate('Code') ?></th>
+                        <th><?= $this->translate('Username') ?></th>
+                        <th><?= $this->translate('Product') ?></th>
+                        <th><?= $this->translate('Order') ?></th>
+                        <th><?= $this->translate('Date') ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($this->data as $info): ?>
+                        <tr>
+                            <td><?= $info['code'] ?></td>
+                            <td><a href="/contact/index/view/id/<?= $info['id'] ?>"><?= $info['name'] ?></a></td>
+                            <td><a href="/shop/products/edit/id/<?= $info['product_id'] ?>"><?= $info['product_name'] ?></a></td>
+                            <td><a href="/order/index/one/order_id/<?= $info['order_id'] ?>"><?= $info['order_id'] ?></a></td>
+                            <td><?= $info['date'] ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+        <?php endif; ?>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#infoTable').DataTable();
+        $('#add-field').click(function () {
+            $('#input_fields').append('<input type="text" value="" name="character[]"><br>');
+        });
+    });
+</script>

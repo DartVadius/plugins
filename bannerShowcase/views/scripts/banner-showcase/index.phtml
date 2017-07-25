@@ -1,0 +1,110 @@
+<div class="row">
+    <div class="col-lg-6">
+        <form action="" method="POST" enctype="multipart/form-data">
+            <label for="banner_id"><?= $this->translate('Name of the banner') ?></label>
+            <br>
+            <input type="text" name="banner_id" size="50" placeholder="<?= $this->translate('Name') ?>" required="true">
+            <br><br>
+            <label for="url"><?= $this->translate('URL') ?></label>
+            <br>
+            <input type="text" name="url" size="50" placeholder="<?= $this->translate('URL') ?>" required="true">
+            <br><br>
+            <input type="file" name="file" required="true">
+            <br><br>
+            <h4><?= $this->translate('Categories') ?></h4>
+            <input type="text" class="search shop_category" name="search[category]">
+            <input type="button" id="shop_category" name="search" value="<?= $this->translate('Search') ?>" class="btn btn-primary">
+            <div class="shop_category" >
+                <?php if (!empty($this->categories)): ?>
+                    <?php foreach ($this->categories as $category): ?>
+                        <div>                                    
+                            <input type="checkbox" class="shop_category" value="<?= $category['id'] ?>" name="category[<?= $category['name'] ?>]" checked="true"><label for="category"><?= $category['name'] ?></label>
+                        </div>
+                    <?php endforeach; ?>
+
+                <?php endif; ?>
+            </div>
+            <br>
+            <h4><?= $this->translate('Products') ?></h4>
+            <input type="text" class="search shop_product" name="search[product]">
+            <input type="button" id="shop_product" name="search" value="<?= $this->translate('Search') ?>" class="btn btn-primary">
+            <div class="shop_product" >
+                <?php if (!empty($this->products)): ?>
+                    <?php foreach ($this->products as $product): ?>
+                        <div>                                    
+                            <input type="checkbox" class="shop_product" value="<?= $product['id'] ?>" name="product[<?= $product['name'] ?>]" checked="true"><label for="product"><?= $product['name'] ?></label>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary"><?= $this->translate('Save') ?></button>
+        </form>
+    </div>
+    <div class="col-lg-6">
+        <h4><?= $this->translate('Available banners') ?></h4>
+        <?php if (!empty($this->banners)): ?>
+            <?php foreach ($this->banners as $banner): ?>
+                <div class="<?= $banner['id'] ?>">
+                    <p>
+                        <?= $this->translate($banner['name']) ?>
+                        <a class="del_pic" href="#" id="<?= $banner['id'] ?>"><i class="fa fa-minus-square-o fa-2" aria-hidden="true"></i></a>
+                        <a class="del_pic" href="/bannerShowcase/banner-showcase/edit?id=<?= $banner['id'] ?>" ><i class="fa fa-pencil-square-o fa-2" aria-hidden="true"></i></a>
+                    </p>
+                    <img src="/bannerShowcase/banner-showcase/display?name=<?= $banner['image_name'] ?>" width="150px">
+                </div>
+                <br>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('.del_pic').click(function () {
+            var id = $(this).attr('id');
+            var data = {
+                id: id
+            }
+            $.ajax({
+                url: '/bannerShowcase/banner-showcase/delete',
+                type: 'POST',
+                data: data,
+                success: function (response) {
+                    if (response.status === true) {
+                        $('div.' + id).remove();
+                    }
+                }
+            });
+        });
+        $(':button[name=search]').click(function (e) {
+            e.preventDefault();
+            var id = $(this).attr('id');
+
+            var search = $('.search').filter('.' + id).val();
+
+            var checkbox = [];
+            $(':checkbox.' + id).each(function () {
+                checkbox.push($(this).attr('value'));
+            });
+            console.log(checkbox);
+            $('div.' + id).empty();
+            if (search.length > 0) {
+                var data = {
+                    id: id,
+                    search: search,
+                    checkbox: checkbox,
+                }
+                //                console.log(data);
+                $.ajax({
+                    url: '/bannerShowcase/banner-showcase/search',
+                    type: 'POST',
+                    data: data,
+                    success: function (responce) {
+                        $('div.' + responce.id).append(responce.html);
+                    }
+                });
+            }
+
+        });
+    });
+</script>

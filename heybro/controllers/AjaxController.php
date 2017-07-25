@@ -15,10 +15,11 @@ class Heybro_AjaxController extends Zend_Controller_Action {
         $heybroModel = new Heybro_Model_Heybro();
         $post = $this->_request->getPost();
         $form = [];
-        $code = $post['code'];
-        parse_str($post['form'], $form);
 //        print_r($date);
 //        die;
+
+        $code = $post['code'];
+        parse_str($post['form'], $form);
         $img = imagecreatefromjpeg(PUBLIC_PATH . "/cards/$code.jpg");
         $black = imagecolorallocate($img, 0x00, 0x00, 0x00);
         imagefttext($img, 38, 0, 320, 1550, $black, APPLICATION_PATH . '/plugins/frontend/heybro/controllers/Norasi.ttf', $code);
@@ -27,16 +28,13 @@ class Heybro_AjaxController extends Zend_Controller_Action {
         imagefttext($img, 76, 0, 1500, 1140, $black, APPLICATION_PATH . '/plugins/frontend/heybro/controllers/Norasi.ttf', $form['character']);
         imagejpeg($img, PUBLIC_PATH . "/cards/$code.jpg");
         imagedestroy($img);
-
         $heybroModel->setEditTrueByCode($code);
-
         $html = new Zend_View();
         $html->setScriptPath(APPLICATION_PATH . '/plugins/frontend/heybro/views/scripts/partials/');
-        $html->assign('cardsReady', $heybroModel->getCardsReadyByUserId($post['user_id']));
-        $html->assign('cardsEdit', $heybroModel->getCardsEditByUserId($post['user_id']));
+        $html->assign('cardsReady', $heybroModel->getCardsByUserId($post['user_id']));
+        $html->assign('cardsEdit', $heybroModel->getCardsByUserId($post['user_id'], 0));
         $page = $html->render('set-img-partial.phtml');
         $this->_helper->json(['html' => $page]);
-//        die;
     }
 
     /**
@@ -51,20 +49,22 @@ class Heybro_AjaxController extends Zend_Controller_Action {
         $price += $productModel->getById($post['toy'])['price'];
         $price += $productModel->getById($post['topic'])['price'];
         $price += $productModel->getById($post['pants'])['price'];
-//        print_r($price);
-//        die;
+
         $path = $post['folder'];
+//        print_r($path);
         $count = 0;
-        if (is_dir("cards/$path")) {
-            $files = scandir("cards/$path");
+        if (is_dir("cards" . DIRECTORY_SEPARATOR . "$path")) {
+            $files = scandir("cards" . DIRECTORY_SEPARATOR . "$path");
             $count = count($files) - 2;
+        } else {
+            mkdir("cards" . DIRECTORY_SEPARATOR . "$path", 0777);
         }
         $this->_helper->json([
             'count' => $count,
             'price' => $price
         ]);
     }
-    
+
     /**
      * find out sku id
      */
@@ -75,6 +75,22 @@ class Heybro_AjaxController extends Zend_Controller_Action {
         $this->_helper->json([
             'id' => $sku[0]['id'],
         ]);
+    }
+
+    public function clearFolderAction() {
+        $folder = $this->_request->getParam('folder');
+        if (is_dir('cards' . DIRECTORY_SEPARATOR . $folder)) {
+            $files = glob('cards' . DIRECTORY_SEPARATOR . $folder . DIRECTORY_SEPARATOR . '*');
+            if (count($files) > 0) {
+                foreach ($files as $file) {
+                    if (file_exists($file)) {
+                        unlink($file);
+                    }
+                }
+            }
+        }
+        $this->_helper->FlashMessenger($this->view->translate('Folder is clear') . '!');
+        $this->_helper->json('ok');
     }
 
 }

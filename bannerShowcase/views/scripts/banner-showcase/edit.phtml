@@ -1,0 +1,73 @@
+<form action="" method="POST" enctype="multipart/form-data" id="<?= $this->banner['id']?>">
+    <label for="banner_id"><?= $this->translate('Name of the banner') ?></label>
+    <br>
+    <input type="text" name="banner_id" size="50" placeholder="<?= $this->translate('Name') ?>" required="true" value="<?= $this->banner['name']?>">
+    <br><br>
+    <label for="url"><?= $this->translate('URL') ?></label>
+    <br>
+    <input type="text" name="url" size="50" placeholder="<?= $this->translate('URL') ?>" required="true" value="<?= $this->banner['url']?>">
+    <br><br>
+    <input type="file" name="file"><input type="text" name="file_name" hidden="true" value="<?= $this->banner['image_name']?>">
+    <br><br>
+    <h4><?= $this->translate('Categories') ?></h4>
+    <input type="text" class="search shop_category" name="search[category]">
+    <input type="button" id="shop_category" name="search" value="<?= $this->translate('Search') ?>" class="btn btn-primary">
+    <div class="shop_category" >
+        <?php if (!empty($this->categories)): ?>
+            <?php foreach ($this->categories as $name => $id): ?>
+                <div>                                    
+                    <input type="checkbox" class="shop_category" value="<?= $id ?>" name="shop_category[<?= $name ?>]" checked="true"><label for="category"><?= $name ?></label>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+    <br>
+    <h4><?= $this->translate('Products') ?></h4>
+    <input type="text" class="search shop_product" name="search[product]">
+    <input type="button" id="shop_product" name="search" value="<?= $this->translate('Search') ?>" class="btn btn-primary">
+    <div class="shop_product" >
+        <?php if (!empty($this->products)): ?>
+            <?php foreach ($this->products as $name => $id): ?>
+                <div>                                    
+                    <input type="checkbox" class="shop_product" value="<?= $id ?>" name="shop_product[<?= $name ?>]" checked="true"><label for="product"><?= $name ?></label>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary"><?= $this->translate('Save') ?></button>
+</form>
+<script>
+    $(document).ready(function () {
+        $(':button[name=search]').click(function (e) {
+            e.preventDefault();
+            var id = $(this).attr('id');
+
+            var search = $('.search').filter('.' + id).val();
+
+            var checkbox = [];
+            $(':checkbox.' + id).each(function () {
+                checkbox.push($(this).attr('value'));
+            });
+            console.log(checkbox);
+            $('div.' + id).empty();
+            if (search.length > 0) {
+                var data = {
+                    id: id,
+                    search: search,
+                    checkbox: checkbox,
+                }
+                //                console.log(data);
+                $.ajax({
+                    url: '/bannerShowcase/banner-showcase/search',
+                    type: 'POST',
+                    data: data,
+                    success: function (responce) {
+                        $('div.' + responce.id).append(responce.html);
+                    }
+                });
+            }
+
+        });
+    });
+</script>
