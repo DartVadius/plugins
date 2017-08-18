@@ -1,0 +1,134 @@
+<?php $stringOperations = new Crm_StringOperations(); ?>
+<h3>Просмотр задачи</h3>
+
+<div class="task-field">
+    <div class="task-field-name">Название</div>
+    <div class="task-field-value"><?= $this->task['title']; ?></div>
+</div>
+
+<?php if (!empty($this->task['description'])): ?>
+    <div class="task-field">
+        <div class="task-field-name">Описание</div>
+        <div class="task-field-value"><?= $this->task['description']; ?></div>
+    </div>
+<?php endif; ?>
+
+<?php if (!empty($this->task['status_name'])): ?>
+    <div class="task-field">
+        <div class="task-field-name">Статус</div>
+        <div class="task-field-value <?= $this->task['status_class']; ?>"><?= $this->task['status_name']; ?></div>
+    </div>
+<?php endif; ?>
+
+<?php if (strtotime(date('Y-m-d H:i:s')) > strtotime($this->task['start_date']) && strtotime(date('Y-m-d H:i:s')) > strtotime($this->task['end_date']) && $this->task['status'] == 0): ?>
+    <div class="task-field">
+        <div class="task-field-name">Текущий статус</div>
+        <div class="task-field-value task-overdue">Истекло время на исполнение</div>
+    </div>
+<?php endif; ?>
+
+<?php if (!empty($this->task['check_list'])): ?>
+    <?php $j = 1; ?>
+    <?php foreach ($this->task['check_list'] as $one_task): ?>
+        <?php if ($one_task['is_checked']) {
+            $is_checked = 'выполнено';
+            $is_checked_class = 'task-checked';
+        } else {
+            $is_checked = 'не выполнено';
+            $is_checked_class = 'task-not-checked';
+        } ?>
+        <div class="task-field">
+            <div class="task-field-name"><?php if ($j == 1): ?>Задания<?php endif; ?></div>
+            <div class="task-field-value"><?= $j++; ?>. <?= $one_task['title']; ?> (<span class="<?= $is_checked_class; ?>"><?= $is_checked; ?></span>)</div>
+        </div>
+    <?php endforeach; ?>
+<?php endif; ?>
+
+<div class="task-field">
+    <div class="task-field-name">Приоритет</div>
+    <div class="task-field-value task-priority-<?= $this->task['priority']; ?>"><?= $stringOperations->ucfirst_utf8($this->translate($this->task['priority'])); ?></div>
+</div>
+
+<div class="task-field">
+    <div class="task-field-name">Создал<?php if (is_null($this->task['create_contact']['sex'])) {
+    echo ' (а)';
+} elseif ($this->task['create_contact']['sex'] == 'f') {
+    echo 'а';
+} ?></div>
+    <div class="task-field-value"><?= $this->task['create_contact']['name']; ?></div>
+</div>
+
+<div class="task-field">
+    <div class="task-field-name">Ответственный</div>
+    <div class="task-field-value"><?= $this->task['responsible']['name']; ?></div>
+</div>
+
+<?php if (!empty($this->task['assistants'])): ?>
+    <?php $i = 0; ?>
+    <?php foreach ($this->task['assistants'] as $assistant): ?>
+        <div class="task-field">
+            <div class="task-field-name"><?php if ($i == 0): ?>Соисполнители<?php endif; ?></div>
+            <div class="task-field-value"><?= $assistant['name']; ?></div>
+        </div>
+        <?php $i++; ?>
+    <?php endforeach; ?>
+<?php endif; ?>
+
+<?php if (!empty($this->task['curator'])): ?>
+    <div class="task-field">
+        <div class="task-field-name">Куратор</div>
+        <div class="task-field-value"><?= $this->task['curator']['name']; ?></div>
+    </div>
+    <?php endif; ?>
+
+<?php if (!empty($this->task['files'])): ?>
+    <?php $j = 0; ?>
+    <?php foreach ($this->task['files'] as $file): ?>
+        <div class="task-field">
+            <div class="task-field-name"><?php if ($j == 0): ?>Файлы<?php endif; ?></div>
+
+        <?php
+        $filename = explode('/', $file['file_url']);
+        $filename = $filename[max(array_keys($filename))];
+        ?>
+
+            <div class="task-field-value"><a title="Скачать файл" href="/<?= $file['file_url']; ?>"><?= $filename; ?></a></div>
+        </div>
+        <?php $j++; ?>
+    <?php endforeach; ?>
+<?php endif; ?>
+
+<div class="task-field information-grey">
+    <div class="task-field-name">Дата создания</div>
+    <div class="task-field-value"><b><?= date('d-m-Y H:i:s', strtotime($this->task['create_date'])); ?></b></div>
+</div>
+
+    <?php if (!empty($this->task['start_date']) && !empty($this->task['end_date'])): ?>
+    <div class="task-field information-grey">
+        <div class="task-field-name">Время на выполнение</div>
+        <div class="task-field-value">с <b><?= date('d-m-Y H:i:s', strtotime($this->task['start_date'])); ?></b> по <b><?= date('d-m-Y H:i:s', strtotime($this->task['end_date'])); ?></b></div>
+    </div>
+<?php endif; ?>
+
+    <?php if (!empty($this->periodical_tasks)): ?>
+    <a class="global-open-list-block open-tasks-list" data-open-id="Еще задачи из цепочки (<?= count($this->periodical_tasks); ?> шт.)" data-close-id="Скрыть">Еще задачи из цепочки (<?= count($this->periodical_tasks); ?> шт.)</a>
+    <div class="unvisible">
+    <?php foreach ($this->periodical_tasks as $task): ?>
+            <div class="periodical-task">
+                <div class="task-field">
+                    <div class="task-field-name information-grey">Время на выполнение</div>
+                    <div class="task-field-value information-grey">с <b><?= date('d-m-Y H:i:s', strtotime($task['start_date'])); ?></b> по <b><?= date('d-m-Y H:i:s', strtotime($task['end_date'])); ?></b></div>
+                    <a href="<?= $this->url(array('module' => 'calendar', 'controller' => 'task', 'action' => 'view', 'task_id' => $task['id'])); ?>">перейти</a>
+                </div>
+            </div>
+    <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<?php $url = $this->url(array('module' => 'calendar', 'controller' => 'index', 'action' => 'index'), 'default', true); ?>
+<a href="<?= $url; ?>"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Назад к календарю</a>
+<br>
+<?php if ($this->edit == TRUE): ?>
+    <?php $url = $this->url(array('module' => 'calendar', 'controller' => 'task', 'action' => 'edit', 'task_id' => $this->task['id']), 'default', true); ?>
+    <a href="<?= $url; ?>"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Редактировать задачу</a>
+<?php endif; ?>

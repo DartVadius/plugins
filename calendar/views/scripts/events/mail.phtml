@@ -1,0 +1,50 @@
+<div id="event-preview" class="mail-preview">
+    <div class="wrapper">
+        <i class="fa fa-times color-ligth-blue" id="clear-mail"></i>
+        <?php //Zend_Debug::dump($this->mail); ?>
+        <div class="clearfix">
+            <div class="col-xs-2 field color-ligth-blue">От:</div>
+            <div class="col-xs-8"><?= $this->escape($this->mail['from']) ?></div>
+        </div>
+        <div class="clearfix">
+            <div class="col-xs-2 field color-ligth-blue">Кому:</div>
+            <div class="col-xs-8"><?= $this->escape($this->mail['to']) ?></div>
+        </div>
+        <div class="clearfix">
+            <div class="col-xs-2 field color-ligth-blue">Тема:</div>
+            <div class="col-xs-8"><?= $this->mail['subject'] ?></div>
+        </div>
+        <div class="body"><?= $this->mail['body'] ?></div>
+        <?php if ($this->mail['filename']): ?>
+
+            <div class="attachments">
+                <?php foreach ($this->mail['filename'] as $key => $file): ?>
+                    <div class="file">
+                        <?php
+                        $url = $this->url(array(
+                            'module' => 'calendar',
+                            'controller' => 'index',
+                            'action' => 'get-file-from-mail-archive',
+                            'mail_id' => $this->mail_id,
+                            'file_key' => $key
+                        ));
+                        ?>
+                        <a href="<?= $url ?>"><i class="fa fa-paperclip left" aria-hidden="true"></i><?= $file ?></a>
+                    </div>
+                <?php endforeach ?>
+            </div>
+
+        <?php endif ?>
+
+        <?php if ($this->mail['report']): ?>
+            <p class="color-ligth-blue">Открыто: <?= $this->mail['report'] ?></p>
+        <?php endif ?>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $('#clear-mail').click(function(){
+            $('#event-preview').remove();
+        });
+    });
+</script>

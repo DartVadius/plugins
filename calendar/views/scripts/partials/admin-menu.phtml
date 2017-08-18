@@ -1,0 +1,40 @@
+<?php
+	$acl = Zend_Registry::get('acl');
+
+	$identity = Zend_Auth::getInstance()->getStorage()->read();
+	if (!empty($identity['role'])) {
+        $role = $identity['role'];
+            
+	} else {
+        $role = 'guest';
+	}
+?>
+
+<ul class="adminMenu">
+
+	<?php foreach ($this->container as $page): ?>
+		<?php if ($acl->isAllowed($role, $page->resource, $page->privilege)): ?>
+			<li>
+				<a href="<?php echo $page->getHref(); ?>">
+					<i class="fa <?php echo $page->icon; ?>"></i>
+					&nbsp;<?php echo $page->label; ?>
+				</a>
+				<?php if ($page->pages): ?>
+					<ul class="sub">
+						<?php foreach ($page->pages as $value): ?>
+							<li>
+								<a href="<?php echo $value->getHref(); ?>">
+									<?php echo $value->label; ?>
+								</a>
+							</li>
+							
+						<?php endforeach ?>
+					</ul>
+					
+				<?php endif ?>
+			</li>
+				
+		<?php endif; ?>		
+	<?php endforeach; ?>
+	
+</ul>

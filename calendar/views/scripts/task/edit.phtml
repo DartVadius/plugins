@@ -1,0 +1,414 @@
+<script src="/js/jquery-ui-1_11_4/jquery.ui.timepicker.ru.js"></script>
+<script src="/js/jquery-ui-1_11_4/jquery.ui.timepicker.min.js"></script>
+<div class="title-left"><?= $this->title; ?></div>
+<div class="title-left">
+    <?php $url = $this->url(array('module' => 'calendar', 'controller' => 'task', 'action' => 'view', 'task_id' => $this->task['id']), 'default', true); ?>
+    <a href="<?= $url; ?>"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Просмотр задачи</a>
+</div>
+<div class="title-left">
+    <?php $url = $this->url(array('module' => 'calendar', 'controller' => 'index', 'action' => 'index'), 'default', true); ?>
+    <a href="<?= $url; ?>"><i class="fa fa-angle-double-left" aria-hidden="true"></i> Назад к календарю</a>
+</div>
+<hr />
+
+<form enctype="multipart/form-data" method="post" class="create-task form-inline">
+
+    <div class="task-element">
+        <input class="form-control js-symbols-formatter" data-key-space-id="true" type="text" size="100" name="title" value="<?= $this->task['title']; ?>" placeholder="Что нужно сделать?" />
+    </div>
+
+    <div class="task-element task-priority">
+        <div class="caption-horizontal">Приоритет:</div>
+        <label class="priority-low priority">
+            <input style="display: none;" type="radio" name="priority" class="set-priority set-priority-low"<?php if (isset($this->task['priority']) && $this->task['priority'] == 'low'): ?> checked<?php endif ?> value="low" />
+            <span>низкий</span>
+        </label>
+        <label class="priority-normal priority">
+            <input style="display: none;" type="radio" name="priority" class="set-priority set-priority-normal"<?php if (isset($this->task['priority']) && $this->task['priority'] == 'normal'): ?> checked<?php endif ?> value="normal" />
+            <span>средний</span>
+        </label>
+        <label class="priority-high priority">
+            <input style="display: none;" type="radio" name="priority" class="set-priority set-priority-high"<?php if (isset($this->task['priority']) && $this->task['priority'] == 'high'): ?> checked<?php endif ?> value="high" />
+            <span>высокий</span>
+        </label>
+    </div>
+
+    <?php if ($this->no_task_name): ?>
+        <div class="check-field">Введите название задания</div>
+    <?php endif; ?>
+
+    <div class="task-element task-responsible">
+        <div class="caption-vertical">Ответственный</div>
+        <select class="set-responsible form-control" name="responsible">
+            <?php if (!empty($this->manager_list)): ?>
+                <?php foreach ($this->manager_list as $m_id => $m): ?>
+                    <?php if ($m_id == $this->task['responsible']['id'] || $m_id == $this->identity['id']): ?>
+                        <option selected="selected" value="<?= $m_id; ?>"><?= $m['name']; ?></option>
+                    <?php else: ?>
+                        <option value="<?= $m_id; ?>"><?= $m['name']; ?></option>
+                    <?php endif; ?>
+
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </select>
+    </div>
+
+    <div class="task-element"  style="display: inline-block;">
+        <a class="link-underlined assistants-add">Соисполнители</a>
+        <?php if (!empty($this->task['curator']['id'])): ?>
+            <a class="link-underlined curator-add">Куратор:</a>
+        <?php else: ?>
+            <a class="link-underlined curator-add">Куратор</a>
+        <?php endif; ?>
+    </div>
+
+    <?php if (!empty($this->task['curator']['id'])): ?>
+        <div class="curator-selected" style="display: inline-block;">
+            <a class="curator-add" style="cursor: pointer;"><?= $this->task['curator']['name']; ?></a>
+            <a class="del-curator" id="del-curator<?= $this->task['curator']['id']; ?>" style="cursor: pointer;" title="Удалить куратора"> <i class="fa fa-times"></i></a>
+            <input type="hidden" name="curator" value="<?= $this->task['curator']['id'] ?>" />
+        </div>
+    <?php endif; ?>
+    <div class="assistants-list">
+        <?php if (!empty($this->task['assistants'])): ?>
+            <div class="caption-vertical assistants-caption">Список соисполнителей</div>
+            <div class="modal-table assistants">
+
+                <?php foreach ($this->task['assistants'] as $i => $a): ?>
+                    <div class="modal-row assistant" id="assistant<?= $a['id']; ?>">
+                        <div class="modal-cell assistant-number" style="font-size: 18px;"><?= ++$i; ?></div>
+                        <div class="modal-cell" style="font-size: 18px;"><?= $a['name']; ?></div>
+                        <div class="modal-cell del-cell<?= $a['id']; ?>" style="cursor: pointer; font-size: 18px;" title="Удалить соисполнителя">
+                            <a class="del-assistant" id="assistant-id-<?= $a['id']; ?>"><i class="fa fa-times"></i></a>
+                        </div>
+                        <input type="hidden" name="assistants[]" value="<?= $a['id']; ?>"/>
+                    </div>
+
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+    <label class="one-task-time-interval">
+        <input type="radio" name="set_time_interval_type" checked="checked" value="one_task" />
+        <div class="task-element time-interval">
+            Время на исполнение
+            <input class="form-control input-medium" type="text" id="from" name="start_date" placeholder="с" value="<?= ($this->task['start_date']) ? $this->task['start_date'] : $this->date; ?>" />
+            -
+            <input class="form-control input-medium" type="text" id="to" name="end_date" placeholder="по" value="<?= ($this->task['end_date']) ? $this->task['end_date'] : $this->date; ?>" />
+        </div>
+    </label>
+
+    <label class="some-tasks-time-interval">
+        <input type="radio" name="set_time_interval_type" value="some_tasks" />
+        <div class="task-element time-period">
+            <table>
+                <tr>
+                    <td>
+                        Периодичность задачи
+                        <input class="form-control input-medium" type="text" id="period_from" name="start_period" placeholder="с" />
+                        -
+                        <input class="form-control input-medium" type="text" id="period_to" name="end_period" placeholder="по" />
+                        <span class="every-period-text">каждый</span>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="radio" name="period_type" checked="checked" value="day_month" />
+                            <input type="text" name="by_day_or_month" size="8" value="1" />
+                            <select name="change_day_or_month">
+                                <option value="change_day">день</option>
+                                <option value="change_month">месяц</option>
+                            </select>
+                        </label>
+                        <br />
+                        <label>
+                            <input type="radio" name="period_type" value="day_of_week" />
+                            <span data-day-id="mon" class="week-day not-active">ПН</span>
+                            <span data-day-id="tue" class="week-day not-active">ВТ</span>
+                            <span data-day-id="wed" class="week-day not-active">СР</span>
+                            <span data-day-id="thu" class="week-day not-active">ЧТ</span>
+                            <span data-day-id="fri" class="week-day not-active">ПТ</span>
+                            <span data-day-id="sat" class="week-day not-active">СБ</span>
+                            <span data-day-id="sun" class="week-day not-active">ВС</span>
+                        </label>
+                    </td>
+                </tr>
+            </table>
+            <div>
+                Время на исполнение каждой задачи: с <input type="text" name="hours_from" class="hours-from" size="3" placeholder="чч:мм" />
+                в течении <input type="text" name="during_time" size="4" value="1" /> <span class="during-time-text">дня</span>
+                до <input type="text" name="hours_to" class="hours-to" size="3" placeholder="чч:мм" />
+            </div>
+        </div>
+    </label>
+    <hr />
+
+    <div class="task-element">
+        <div class="form-group">
+            <label style="width: 100%;"  class="control-label" for="description">Описание задачи</label>
+            <textarea id="description" name="description" placeholder="Описание" style="width: 637px; " class="form-control js-symbols-formatter-all" data-key-space-id="true"><?= $this->task['description']; ?></textarea>
+        </div>
+    </div>
+
+    <?php if (isset($this->child_tasks)): ?>
+        <div class="task-element">
+            <div class="caption-vertical">Дочерние задачи:</div>
+            <?php foreach ($this->child_tasks as $id => $c_t): ?>
+                <div class="child-task">
+                    <div class="name">
+                        <?php $url = $this->url(array('task_id' => $id)); ?>
+                        <a href="<?php echo $url; ?>"><?php echo $c_t['title'] ?></a>
+                    </div>
+                </div>
+            <?php endforeach ?>
+        </div>
+    <?php endif ?>
+
+
+
+    <div class="task-element">
+        <div class="caption-vertical">Задания:</div>
+    </div>
+
+    <div class="task-element">
+        <a class="link-underlined add-mtask">Добавить задание</a>
+    </div>
+
+    <?php if (!empty($this->task['check_list'])): ?>
+        <div class="table-no-border mtasks">
+            <?php foreach ($this->task['check_list'] as $key => $cl): ?>
+                <div class="row-no-border mtask" id="mtask<?= ++$key; ?>">
+                    <div class="cell-no-border mtask-number"><?= $key; ?>. </div>
+                    <div class="cell-no-border">
+                        <input type="text" class="js-symbols-formatter" data-key-space-id="true" size="70" name="check_list[<?= $key; ?>]" value="<?= $cl['title']; ?>" />
+                    </div>
+                    <div class="cell-no-border">
+                        <a class="del-mtask" id="del-mtask<?= $key; ?>" style="cursor: pointer;" title="Удалить задачу"><i class="fa fa-times"></i></a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="task-element task-files">                                                                  
+        <div class="file-field input-field">
+            <div class="btn">
+                <input class="join-files" type="file" name="file[]" multiple="multiple">
+            </div>
+        </div>
+    </div>
+
+    <?php if (isset($this->task['files'])): ?>
+        <div class="table-no-border files">
+            <?php foreach ($this->task['files'] as $key => $f): ?>
+                <div class="row-no-border file" id="file<?= ++$key; ?>">
+                    <div class="cell-no-border"><?= $key; ?>. </div>
+                    <div class="cell-no-border" style="text-align: left;">
+                        <?php
+                        $file_name = explode('/', $f['file_url']);
+                        $file_name = $file_name[max(array_keys($file_name))];
+                        ?>
+                        <a href="/<?= $f['file_url']; ?>" target="_blank"><?= $file_name; ?></a>
+                    </div>
+                    <div class="cell-no-border">
+                        <a class="del-file" id="del-file<?= $key; ?>" title="Удалить файл" style="cursor: pointer;"><i class="fa fa-times"></i></a>
+                    </div>
+                    <input type="hidden" name="files[<?= $key; ?>][name]" value="<?= $f['name']; ?>" />
+                    <input type="hidden" name="files[<?= $key; ?>][file_url]" value="<?= $f['file_url']; ?>" />
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="task-element child-tasks">
+        <div class="caption-vertical">Добавить к задаче</div>
+        <select class="add-to-task form-control" name="parent_task_id" style="width: 300px;">
+            <option value="0">Выбрать задачу</option>
+            <?php if (!empty($this->my_tasks)): ?>
+                <?php foreach ($this->my_tasks as $task_id => $m_t): ?>
+                    <?php if ($task_id == $this->task['parent_task_id']): ?>
+                        <option selected="selected" value="<?= $task_id ?>"><?= $m_t['title']; ?></option>
+                    <?php else: ?>
+                        <option value="<?= $task_id ?>"><?= $m_t['title']; ?></option>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </select>
+    </div>
+
+    <?php if (isset($this->task)): ?>
+        <div class="task-element">
+            <button name="del_current_task">Удалить текущую задачу</button>
+            <?php if ($this->task['task_qty'] > 1): ?>
+                <button name="del_all_periodical_tasks">Удалить цепочку задач (<?= $this->task['task_qty']; ?> шт.)</button>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="task-element">
+        <input type="submit" name="create_task" class="btn btn-primary" value="<?= $this->send_button_caption; ?>" />
+
+        <?php if (isset($this->task) && $this->task['task_qty'] > 1): ?>
+            <input type="submit" name="create_all_tasks" class="btn btn-primary" value="Сохранить для всей цепочки задач" />
+        <?php endif; ?>
+
+        <?php $url = $this->url(array('module' => 'calendar', 'controller' => 'index', 'action' => 'index'), 'default', true); ?>
+        <a href="<?php echo $url ?>" class="close-button" style="margin-left: 15px;">Отмена</a>
+    </div>
+</form>
+
+
+<div class="modal-window-assistant" title="Добавить соисполнителей">
+    <div class="caption-vertical">Выберите из списка</div>
+
+    <div class="modal-table">
+        <?php foreach ($this->manager_list as $manager_id => $manager_data): ?>
+            <div class="modal-row">
+                <div class="modal-cell select-assistant" style="text-align: left;">
+                    <?php if (!empty($this->task['assistants'])): ?>
+                        <?php foreach ($this->task['assistants'] as $assistant_id => $assistant_name): ?>
+                            <?php if ($manager_id == $assistant_id): ?>
+                                <a id="add-assistant<?= $manager_id; ?>" class="selected-assistant"><span>✔</span> <?= $manager_data['name']; ?></a>
+                                <?php goto a; ?>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        <a id="add-assistant<?= $manager_id; ?>" class="unselected-assistant"><span>+</span> <?= $manager_data['name']; ?></a>
+                        <?php a: ?>
+                    <?php else: ?>
+                        <a id="add-assistant<?= $manager_id; ?>" class="unselected-assistant"><span>+</span> <?= $manager_data['name']; ?></a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+</div>
+
+<div class="modal-window-curator" title="Назначить куратора">
+    <div class="caption-vertical">Назначьте куратора:</div>
+
+    <div class="modal-table">
+        <?php foreach ($this->manager_list as $manager_id => $manager_data): ?>
+
+            <div class="modal-row">
+                <div class="modal-cell select-curator" style="text-align: left;">
+                    <?php if (isset($this->task['curator']['id']) && $manager_id == $this->task['curator']['id']): ?>
+                        <a class="selected-curator" id="add-curator<?= $manager_id; ?>"><?= $manager_data['name']; ?></a>
+                    <?php else: ?>
+                        <a class="unselected-curator" id="add-curator<?= $manager_id; ?>"><?= $manager_data['name']; ?></a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<div class="shadow-window" style="display: none;"></div>
+
+<script>
+
+    translation1 = <?= json_encode($this->translate('Remove the task')); ?>;
+    translation2 = <?= json_encode($this->translate('Delete a file')); ?>;
+    translation3 = <?= json_encode($this->translate('Close')); ?>;
+    translation4 = <?= json_encode($this->translate('List of assistants')); ?>;
+    translation5 = <?= json_encode($this->translate('Remove assistant')); ?>;
+    translation6 = <?= json_encode($this->translate('Curator')); ?>;
+    translation7 = <?= json_encode($this->translate('Remove curator')); ?>;
+    translation8 = <?= json_encode($this->translate('Are you sure you want to delete the chain of tasks')); ?>;
+    translation9 = <?= json_encode($this->translate('Are you sure you want to delete the current task')); ?>;
+    translation10 = <?= json_encode($this->translate('Enter the name')); ?>;
+    translation11 = <?= json_encode($this->translate('Incorrect value of the text field in the periodicity of the task')); ?>;
+    translation12 = <?= json_encode($this->translate('No day of the week selected')); ?>;
+    translation13 = <?= json_encode($this->translate('The date of the end of the periodicity of the task is not entered')); ?>;
+    translation14 = <?= json_encode($this->translate('Start time for each task')); ?>;
+    translation15 = <?= json_encode($this->translate('End time for each task')); ?>;
+    translation16 = <?= json_encode($this->translate('Quantity of days for the task is not entered')); ?>;
+    translation17 = <?= json_encode($this->translate('Task end date not entered')); ?>;
+
+    $(function () {
+
+        $("#from").datetimepicker({
+            changeMonth: true,
+            numberOfMonths: 1,
+            dateFormat: "dd-mm-yy",
+            timeFormat: "HH:mm",
+            hourGrid: 3,
+            minuteGrid: 10,
+            changeYear: true,
+            onClose: function (selectedDate) {
+                $("#to").datepicker("option", "minDate", selectedDate);
+            }
+        });
+
+        $("#to").datetimepicker({
+            changeMonth: true,
+            numberOfMonths: 1,
+            dateFormat: "dd-mm-yy",
+            timeFormat: "HH:mm",
+            hourGrid: 3,
+            minuteGrid: 10,
+            changeYear: true,
+            onClose: function (selectedDate) {
+                $("#from").datepicker("option", "maxDate", selectedDate);
+            }
+        });
+
+        $("#period_from").datepicker({
+            changeMonth: true,
+            numberOfMonths: 1,
+            dateFormat: "yy-mm-dd",
+            changeYear: true,
+            onClose: function (selectedDate) {
+                $("#period_to").datepicker("option", "minDate", selectedDate);
+            }
+        });
+
+        $("#period_to").datepicker({
+            changeMonth: true,
+            numberOfMonths: 1,
+            dateFormat: "yy-mm-dd",
+            changeYear: true,
+            onClose: function (selectedDate) {
+                $("#period_from").datepicker("option", "maxDate", selectedDate);
+            }
+        });
+
+        $(".hours-from").keyup(function () {
+            hours_from = $(this).val();
+        });
+
+        $(".hours-from").change(function () {
+            if (typeof hours_from != 'undefined') {
+                $(this).val(hours_from);
+            }
+        });
+
+        $(".hours-to").keyup(function () {
+            hours_to = $(this).val();
+        });
+
+        $(".hours-to").change(function () {
+            if (typeof hours_to != 'undefined') {
+                $(this).val(hours_to);
+            }
+        });
+
+        $(".hours-from").datetimepicker({
+            numberOfMonths: 0,
+            dateFormat: "",
+            timeFormat: "HH:mm",
+            hourGrid: 3,
+            minuteGrid: 10
+        });
+
+        $(".hours-to").datetimepicker({
+            numberOfMonths: 0,
+            dateFormat: "",
+            timeFormat: "HH:mm",
+            hourGrid: 3,
+            minuteGrid: 10
+        });
+        
+//        $( "#from" ).datetimepicker( "setDate", <?= $this->date ?> );
+
+    });
+</script>

@@ -1,0 +1,7 @@
+<?php if (count($this->contacts) > 0): ?>
+	
+	<?php foreach ($this->contacts as $c): ?>
+		<div class="item" data-contact-id="<?php echo $c['id'] ?>"><?php echo $c['name'] ?></div>
+	<?php endforeach ?>
+
+<?php endif ?>

@@ -1,0 +1,69 @@
+<div id="day">
+
+	<div class="full-day-tasks table">
+		<?php if (isset($this->tasks['fullDayTasks'])): ?>
+			<?php foreach ($this->tasks['fullDayTasks'] as $task_id => $t): ?>
+				<div class="task__element table-row" data-task-id="<?php echo $task_id ?>">
+					<div class="date table-cell"><?php echo $t['date_str'] ?>, <?php echo $t['time_str'] ?></div>
+					<div class="title table-cell"><?php echo $t['title'] ?></div>
+				</div>
+			<?php endforeach ?>
+		<?php endif ?>
+	</div>
+
+	<div id="scrolltime-gd" class="time-day-tasks">
+		<table class="time-day-gd">
+			<tr>
+				<td class="times-gd">
+					<?php for($i = 0; $i < 24; $i++): ?>
+						<div class="time"><?=$i?>:00</div>
+					<?php endfor; ?>
+				</td>
+				<td class="day tasks_elements" data-date="<?= $this->data_date ?>">
+					<div class="day-tasks-wrapper">
+						<?php if (isset($this->tasks['dayTasks'])): ?>
+							<?php foreach ($this->tasks['dayTasks'] as $task_id => $t): ?>
+								<div class="task__element" data-task-id="<?php echo $task_id ?>" style="left:<?php echo $t['position']['left'] ?>%;top:<?php echo $t['position']['top'] ?>px;min-height:<?php echo $t['position']['min-height'] ?>px;width:<?php echo $t['position']['width'] ?>%;background:<?php echo $t['position']['bg'] ?>">
+									<div class="date"><?php echo $t['time_str'] ?></div>
+									<div class="title"><?php echo $t['title'] ?></div>
+									<div class="description"><?php echo $t['description'] ?></div>
+								</div>
+							<?php endforeach ?>
+						<?php endif ?>
+						
+						<?php if (isset($this->events)): ?>
+							<?php foreach ($this->events as $event): ?>
+								<div class="event__element" data-event-id="<?= $event['id'] ?>" data-event-type="<?= $event['event_type'] ?>" style="top:<?= $event['top'] ?>px">
+									<div class="title<?php if ($event['report_date']): ?> opened<?php endif ?>">
+										<?php if ($event['event_type'] == 'mailer_project'): ?>
+											<i class="fa fa-paper-plane-o"></i>
+										<?php elseif($event['event_type'] == 'mail'): ?>
+											<i class="fa fa-envelope-o"></i>
+										<?php elseif($event['event_type'] == 'vizit'): ?>
+											<i class="fa fa-eye"></i>
+										<?php endif ?>
+										<span><?= $event['name'] ?></span>
+									</div>
+									<?php if (isset($event['hint'])): ?>
+										<div class="hint"><?= $event['hint'] ?></div>
+									<?php endif ?>
+								</div>
+							<?php endforeach ?>
+						<?php endif ?>
+						                        
+                        <?php if (isset($this->bonus_history)): ?>
+                            <?php foreach($this->bonus_history as $id => $hist): ?>
+                            	<div style="position: absolute; top: <?=$hist['top']; ?>px;" class="<?php if (substr($hist['value'], 0, 1) == '+'): ?>bonus-added<?php else: ?>bonus-written-off<?php endif; ?>">
+                                    <i class="fa fa-money"></i>
+                                    <span class="hist-type"><?=$hist['operation']; ?></span>
+                                    (<span class="hist-value"><?=$hist['value']; ?></span>
+                                    <span class="hist-currency"><?=$this->bonus_params['default_cur']; ?></span>)
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

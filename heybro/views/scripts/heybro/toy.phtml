@@ -1,15 +1,21 @@
+<style>
+    .spritespin-container{position: relative;}
+    .spritespin-container i.fa-spinner{display: none; position: absolute;top: 40%; left: 36%}
+</style>
+
 <?= $this->breadcrumbs($this->breadcrumbs); ?>
 <div class="row">
-    <div class="col-lg-6">
+    <div class="col-lg-6 spritespin-container">
         <div class="pic"></div>
         <div class="spritespin">
             <img src="./cards/start.png">
         </div>
+        <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
     </div>
     <div class="col-lg-6">
         <form action="" class="" id="">
             <h3><?= $this->translate('Toy') ?></h3>
-            <select name="toy">
+            <select name="toy" class="form-control">
                 <option value="0"><?= $this->translate('Select value') ?></option>
                 <?php if (!empty($this->animal)): ?>
                     <?php foreach ($this->animal as $value): ?>
@@ -18,7 +24,7 @@
                 <?php endif; ?>
             </select>
             <h3><?= $this->translate('Jacket') ?></h3>
-            <select name="topic">
+            <select name="topic" class="form-control">
                 <option value="0"><?= $this->translate('Select value') ?></option>
                 <?php if (!empty($this->topic)): ?>
                     <?php foreach ($this->topic as $value): ?>
@@ -27,7 +33,7 @@
                 <?php endif; ?>
             </select>
             <h3><?= $this->translate('Trousers') ?></h3>
-            <select name="pants">
+            <select name="pants" class="form-control">
                 <option value="0"><?= $this->translate('Select value') ?></option>
                 <?php if (!empty($this->pants)): ?>
                     <?php foreach ($this->pants as $value): ?>
@@ -44,8 +50,8 @@
             <input type="hidden" name="price"
                    value="0,00 UAH"
                    id="add2cart_price_hidden">
-            <span class="qty"> × <input class="form-control js-only-positive js-not-empty"
-                                        style="display: inline !important;" type="text" name="quantity"
+            <span class="qty"> × <input class="form-control js-only-positive js-not-empty" 
+                                        type="text" name="quantity"
                                         value="1"></span>
             <input type="submit" form="addtotoy" value="Купить"
                    class="btn btn-primary addtocart">
@@ -54,11 +60,8 @@
 </div>
 <script>
     $('document').ready(function () {
-//        canvas = document.getElementsByClassName('spritespin-canvas');
-//        context = canvas.getContext("2d");
-//        var img = new Image();
-//        img.src = "cards/start.jpg";
-//        context.drawImage(img, 0, 0);
+
+        var spinner = $('.spritespin-container .fa.fa-spinner');
 
         $('select').change(function () {
             var toy = $('select[name=toy]').val();
@@ -88,7 +91,13 @@
                         height: 612,
                         frameTime: 120,
                         animate: true,
-                        sense: -1
+                        sense: -1,
+                        onProgress: function() {
+                            spinner.show();
+                        },   
+                        onLoad: function() {
+                            spinner.hide();
+                        },
                     });
 
                     if (response.count > 0) {

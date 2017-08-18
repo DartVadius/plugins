@@ -1,0 +1,77 @@
+<?php $td_height = 1 / count($this->calendar) * 100; ?>
+<div id="month">
+	<div class="days">
+		<table class="daynames">
+			<tr>
+				<?php $sun = array_shift($this->daynames) ?>
+				<?php foreach ($this->daynames as $d): ?>
+					<td class="dayname"><?= $d ?></td>
+				<?php endforeach ?>
+				<td class="dayname"><?= $sun ?></td>
+			</tr>
+		</table>
+		<table class="calendar-gd" id="calendar-gd">
+			<?php foreach ($this->calendar as $week => $w): ?>
+				<tr class="week">
+					<?php foreach ($w as $d): ?>
+						<td class="day<?php if ($this->calendar_date->getMonth()->toString('MM') != $d['month']): ?> nonmonth<?php endif ?> tasks_elements" data-date="<?= $d['year']?>-<?=str_pad($d['month'],2,'0',STR_PAD_LEFT)?>-<?=str_pad($d['day'],2,'0',STR_PAD_LEFT) ?>" style="height: ">
+							<div class="d-w">
+								<div class="day-n"><?= $d['day'] ?></div>
+								<?php if ($this->calendar_date->getMonth()->toString('MM') == $d['month']): ?>
+									<?php if (isset($this->tasks[$d['day']])): ?>
+										<?php foreach ($this->tasks[$d['day']] as $task_id => $t): ?>
+											<div class="task__element" style="background:<?= $t['bg']; ?>" data-task-id="<?= $task_id ?>">
+												<div class="title"><?= $t['title'] ?></div>
+											</div>
+										<?php endforeach ?>
+									<?php endif ?>
+
+									<?php if (isset($this->events[$d['day']])): ?>
+										<?php foreach ($this->events[$d['day']] as $event): ?>
+											<div class="event__element" data-event-id="<?= $event['id'] ?>" data-event-type="<?= $event['event_type'] ?>">
+												<div class="title<?php if ($event['report_date']): ?> opened<?php endif ?>">
+													<?php if ($event['event_type'] == 'mailer_project'): ?>
+														<i class="fa fa-paper-plane-o"></i>
+													<?php elseif($event['event_type'] == 'mail'): ?>
+														<i class="fa fa-envelope-o"></i>
+													<?php elseif($event['event_type'] == 'vizit'): ?>
+														<i class="fa fa-eye"></i>
+													<?php elseif($event['event_type'] == 'order'): ?>
+														<i class="fa fa-shopping-cart"></i>
+													<?php endif ?>
+													<span><?= $event['name'] ?></span>
+												</div>
+											</div>
+										<?php endforeach ?>
+									<?php endif ?>
+
+								<?php endif ?>
+                                
+                                <?php if (!(empty($this->bonus_history))): ?>
+                                    
+                                    <?php foreach($this->bonus_history as $id => $hist): ?>
+                                    	
+                                        <?php if ($hist['day'] == $d['day'] && $hist['month'] == $d['month'] && $hist['year'] == $d['year']): ?>
+                                            
+                                            <div class="<?php if (substr($hist['value'], 0, 1) == '+'): ?>bonus-added<?php else: ?>bonus-written-off<?php endif; ?>">
+                                                <i class="fa fa-money"></i>
+                                                <span class="hist-type"><?=$hist['operation']; ?></span>
+                                                (<span class="hist-value"><?=$hist['value']; ?></span>
+                                                <span class="hist-currency"><?=$this->bonus_params['default_cur']; ?></span>)
+                                            </div>
+                                            
+                                        <?php endif; ?>
+                                        
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+							</div>
+							<div class="open-day" data-date="<?= "$d[year]-$d[month]-$d[day]" ?>"><span>показать все</span></div>
+                            
+                            
+						</td>				
+					<?php endforeach ?>
+				</tr>
+			<?php endforeach ?>
+		</table>
+	</div>
+</div>

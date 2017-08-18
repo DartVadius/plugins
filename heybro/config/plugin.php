@@ -8,6 +8,7 @@ return [
     'description' => 'парспорта игрушек',
     'version' => 1.0,
     'enabled' => true,
+    'category' => 'frontend',
     'routes' => [
         'heybro' => [
             '/heybro',

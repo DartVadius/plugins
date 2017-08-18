@@ -1,0 +1,14 @@
+<div id="add-task-mini">
+	<div class="header">Задача</div>
+	<i class="fa fa-times animate" aria-hidden="true"></i>
+	<input type="text" placeholder="Назавание задачи...">
+	<div class="datetime">
+		<span class="time">
+			<?php if (isset($this->date['times'])): ?>
+				<?= $this->date['times']['hour'] ?>:<?= str_pad($this->date['times']['minute'], 2, '0', STR_PAD_LEFT) ?>
+			<?php endif ?>
+		</span>
+		<span class="date"><?= $this->date['date'] ?></span>
+	</div>
+	<button>Сохранить</button>
+</div>

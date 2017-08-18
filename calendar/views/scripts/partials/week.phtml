@@ -1,0 +1,94 @@
+<div id="week">
+	<div class="full-week-tasks">
+		<table>
+			<tr class="week-daynames">
+				<!-- <td class="e-w"></td> -->
+				<?php foreach ($this->weekdays as $dn): ?>
+					<td class="week-dayname"><?=$dn['string']?></td>
+				<?php endforeach ?>
+			</tr>
+			<?php if (isset($this->tasks['fullDayTasksTable'])): ?>
+				<?php foreach ($this->tasks['fullDayTasksTable'] as $line => $weekdays): ?>
+					<tr class="line">
+										
+						<?php for ($wd=1; $wd <= 7 ; $wd++): ?>				
+
+							<?php if (isset($weekdays[$wd]['task_id'])): ?>
+								<td class="task__element" data-task-id="<?= $weekdays[$wd]['task_id'] ?>" colspan="<?= $weekdays[$wd]['colspan']; ?>" style="background:<?= $weekdays[$wd]['bg']; ?>">
+									<div class="title"><?= $this->tasks['fullDayTasks'][$wd][$weekdays[$wd]['task_id']]['title']; ?></div>
+								</td>
+								<?php $wd += $weekdays[$wd]['colspan'] - 1; ?>
+							<?php else: ?>
+								<td class="no-task"></td>
+							<?php endif; ?>
+							
+						<?php endfor; ?>
+					</tr>
+				<?php endforeach; ?>
+			<?php endif ?>
+
+		</table>
+	</div>
+
+	<div id="scrolltime-gd" class="day-week-tasks">
+		<table class="time-day-gd time-day-tasks">
+			<tr>
+				<td class="times-gd">
+					<?php for($i = 0; $i < 24; $i++): ?>
+						<div class="time"><?=$i?>:00</div>
+					<?php endfor; ?>
+				</td>
+
+				<?php foreach ($this->tasks['dayTasks'] as $day => $tasks): ?>
+					<td class="day tasks_elements" data-date="<?= $this->weekdays[$day]['array']['year']?>-<?=str_pad($this->weekdays[$day]['array']['month'],2,'0',STR_PAD_LEFT)?>-<?=str_pad($this->weekdays[$day]['array']['day'],2,'0',STR_PAD_LEFT) ?>">
+						<div class="day-tasks-wrapper">
+							<?php if (is_array($tasks)): ?>
+								<?php foreach ($tasks as $task_id => $t): ?>
+									<div class="task__element" data-task-id="<?= $task_id ?>" style="left:<?= $t['position']['left'] ?>%;top:<?= $t['position']['top'] ?>px;min-height:<?= $t['position']['min-height'] ?>px;width:<?= $t['position']['width'] ?>%;background:<?= $t['position']['bg'] ?>">
+										<div class="date"><?= $t['time_str'] ?></div>
+										<div class="title" title="<?= $t['title'] ?>"><?= $t['title'] ?></div>
+										<div class="description"><?= $t['description'] ?></div>
+									</div>
+								<?php endforeach ?>
+							<?php endif ?>
+
+							<?php if (isset($this->events[$day])): ?>
+								<?php foreach ($this->events[$day] as $event): ?>
+									<div class="event__element" data-event-id="<?= $event['id'] ?>" data-event-type="<?= $event['event_type'] ?>" style="top:<?= $event['top'] ?>px">
+										<div class="title<?php if ($event['report_date']): ?> opened<?php endif ?>">
+											<?php if ($event['event_type'] == 'mailer_project'): ?>
+												<i class="fa fa-paper-plane-o"></i>
+											<?php elseif($event['event_type'] == 'mail'): ?>
+												<i class="fa fa-envelope-o"></i>
+											<?php elseif($event['event_type'] == 'vizit'): ?>
+													<i class="fa fa-eye"></i>
+											<?php endif ?>
+											<span><?= $event['name'] ?></span>
+										</div>
+										<?php if (isset($event['hint'])): ?>
+											<div class="hint"><?= $event['hint'] ?></div>
+										<?php endif ?>
+									</div>
+								<?php endforeach ?>
+							<?php endif ?>
+                            
+                            <?php if (!empty($this->bonus_history)): ?>
+                                <?php foreach($this->bonus_history as $id => $hist): ?>
+                                    <?php if (date('Y-m-d', strtotime($hist['create_date'])) == $tasks): ?>
+                                    	<div style="position: absolute; top: <?=$hist['top']; ?>px;" class="<?php if (substr($hist['value'], 0, 1) == '+'): ?>bonus-added<?php else: ?>bonus-written-off<?php endif; ?>">
+                                            <i class="fa fa-money"></i>
+                                            <span class="hist-type"><?=$hist['operation']; ?></span>
+                                            (<span class="hist-value"><?=$hist['value']; ?></span>
+                                            <span class="hist-currency"><?=$this->bonus_params['default_cur']; ?></span>)
+                                        </div>
+                                     <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+							
+						</div>
+					</td>
+				<?php endforeach ?>
+			</tr>
+		</table>
+	</div>
+</div>

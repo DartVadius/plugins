@@ -1,0 +1,143 @@
+<div id="calendar"></div>
+<script>
+    $(document).ready(function () {
+        $('#calendar').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+            },
+            navLinks: true, // can click day/week names to navigate views
+            editable: true,
+            defaultView: getCookie('CalendarView'),
+            eventLimit: true, // allow "more" link when too many events
+            eventDrop: function (event, delta, revertFunc, jsEvent, ui, view) {
+                var to = from = event.start.format();
+                if (event.end !== null) {
+                    to = event.end.format();
+                }
+//                console.log(from);
+//                console.log(to);
+                var data = {
+                    from: from,
+                    to: to,
+                    id: event.id
+                };
+                $.ajax({
+                    url: '/calendar/ajax/update-event',
+                    type: 'POST',
+                    data: data,
+                    error: function () {
+                        alert('Error');
+                    }
+                });
+
+            },
+            eventResize: function (event, delta, revertFunc) {
+                var data = {
+                    from: event.start.format(),
+                    to: event.end.format(),
+                    id: event.id
+                };
+                $.ajax({
+                    url: '/calendar/ajax/update-event',
+                    type: 'POST',
+                    data: data,
+                    error: function () {
+                        alert('Error');
+                    }
+                });
+
+            },
+            viewRender: function () {
+                var view = $('#calendar').fullCalendar('getView');
+                setCookie('CalendarView', view.name);
+                $('#calendar').fullCalendar('refetchEventSources', '/calendar/ajax/calendar');
+            },
+            eventClick: function (event) {
+                if (event.className == 'mail') {
+                    $.ajax({
+                        url: '/calendar/ajax/mail',
+                        type: 'POST',
+                        data: {
+                            id: event.id,
+                        },
+                        success: function(response) {
+                            $('.content').append(response.html);
+                            console.log(response);
+                        }
+                    });
+                }
+                if (event.className == 'vizit') {
+//                    console.log(event.id);
+//                    console.log(event.start.format());
+//                    console.log(event.end.format());
+                    $.ajax({
+                        url: '/calendar/ajax/vizit',
+                        type: 'POST',
+                        data: {
+                            user_id: event.id,
+                            from: event.start.format(),
+                        },
+                        success: function(response) {
+                            $('.content').append(response.html);
+                            console.log(response);
+                        }
+                    });
+                }
+                if (event.className == 'task') {
+//                    console.log(event.id);
+//                    console.log(event.start.format());
+//                    console.log(event.end.format());
+                    $.ajax({
+                        url: '/calendar/ajax/task',
+                        type: 'POST',
+                        data: {
+                            task_id: event.id,
+//                            from: event.start.format(),
+                        },
+                        success: function(response) {
+                            $('.content').append(response.html);
+//                            console.log(response);
+                        }
+                    });
+                }
+            },
+            dayClick: function (date, jsEvent, view) {
+//                console.log(date.format());
+                document.location.href = '/calendar/task/edit?date=' + date.format();
+            },
+            events: '/calendar/ajax/calendar'
+        });
+    });
+
+    function getCookie(name) {
+        var matches = document.cookie.match(new RegExp(
+                "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+                ));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+    }
+
+    function setCookie(name, value, path, domain, secure) {
+        var cookie_string = name + "=" + escape(value);
+        var date = new Date;
+        date.setDate(date.getDate() + 1);
+        cookie_string += "; expires=" + date.toUTCString();
+
+        if (path) {
+            cookie_string += "; path=" + escape(path);
+        }
+
+        if (domain) {
+            cookie_string += "; domain=" + escape(domain);
+        }
+
+        if (secure) {
+            cookie_string += "; secure";
+        }
+
+        document.cookie = cookie_string;
+    }
+
+
+</script>

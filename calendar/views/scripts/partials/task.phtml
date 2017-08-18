@@ -1,0 +1,149 @@
+<div id="task">
+    <div class="wrapper">
+        <i class="fa fa-times color-ligth-blue" id="clear-task"></i>
+        <div class="item title clearfix">
+            <span><?php echo $this->task['title']; ?></span>
+            <?php $url = $this->url(array('module' => 'calendar', 'controller' => 'task', 'action' => 'edit', 'task_id' => $this->task['id'])); ?>
+            <a href="<?php echo $url ?>"><i class="fa fa-pencil-square-o"></i> Редактировать</a>
+        </div>
+
+        <?php if (isset($this->task['start_date']) || isset($this->task['end_date'])): ?>
+            <div class="item date">
+                <span>c <?php echo $this->task['start_date'] ?></span>
+                <span>по <?php echo $this->task['end_date'] ?></span>
+                <?php $url = $this->url(array('module' => 'calendar', 'controller' => 'task', 'action' => 'view', 'task_id' => $this->task['id']), 'default', true); ?>
+                <a class="task-details" href="<?= $url; ?>"><i class="fa fa-sign-in" aria-hidden="true"></i> Подробнее</a>
+            </div>
+        <?php endif ?>
+
+        <div class="item responsible clearfix">
+            <div class="h1">Ответственный:</div>
+            <div class="value">
+                <?php echo $this->task['responsible']['name']; ?>
+            </div>
+        </div>
+
+        <?php if (!is_null($this->task['curator'])): ?>
+            <div class="item curator clearfix">
+                <div class="h1">Куратор:</div>
+                <div class="value">
+                    <?php echo $this->task['curator']['name']; ?>
+                </div>
+            </div>
+        <?php endif ?>
+
+        <?php if (!empty($this->task['assistants'])): ?>
+            <div class="item assistants clearfix">
+                <div class="h1">Ассистенты:</div>
+                <div class="value">
+                    <?php foreach ($this->task['assistants'] as $a_id => $a): ?>
+                        <div class="assistant"><?php echo $a['name']; ?></div>
+                    <?php endforeach ?>
+                </div>
+            </div>
+        <?php endif ?>
+
+        <div class="item description">
+            <div class="h1">Описание:</div>
+            <div class="value">
+                <?php echo $this->task['description']; ?>
+            </div>
+        </div>
+
+        <?php if (!empty($this->task['check_list'])): ?>
+            <div class="item check_list">
+                <?php foreach ($this->task['check_list'] as $c_l): ?>
+                    <div>
+                        <label><input class="checkbox" type="checkbox" <?php if ($c_l['is_checked'] == 1): ?>checked<?php endif ?> value="<?php echo $c_l['id'] ?>">
+                            <span><?php echo $c_l['title']; ?></span>
+                        </label>
+                    </div>
+                <?php endforeach ?>
+            </div>
+        <?php endif ?>
+
+        <?php if (isset($this->task['children_tasks'])): ?>
+            <div class="item children_tasks">
+                <div class="h1">Дочерние задачи</div>
+                <?php foreach ($this->task['children_tasks'] as $ct_id => $child): ?>
+                    <div class="child clearfix">
+                        <div class="task__element" data-task-id="<?php echo $ct_id ?>"><?php echo $child['title'] ?></div>
+
+                        <div class="status" data-task-id="<?php echo $ct_id ?>">
+                            <?php if ($child['status'] != 1): ?>
+                                <div class="btn done"><i class="fa fa-play"></i></div>
+
+                                                                                                                                        <!-- <div class="btn later"><i class="fa fa-pause"></i></div> -->
+
+                                <div class="btn abort"><i class="fa fa-stop"></i></div>
+                            <?php else: ?>
+                                <span>выполнено</span>
+                            <?php endif ?>
+                        </div>
+                    </div>
+                <?php endforeach ?>
+            </div>
+        <?php endif ?>
+
+        <div class="item priority clearfix">
+            <div class="h1">Приоритет:</div>
+            <div class="value">
+                <span class="<?php echo $this->task['priority'] ?>"><?php echo $this->translate($this->task['priority']); ?></span>
+            </div>
+        </div>
+
+        <div class="item create_date clearfix">
+            <div class="h1">Дата создания:</div>
+            <div class="value">
+                <?php echo $this->task['create_date'] ?>
+            </div>
+        </div>
+
+        <div class="status" data-task-id="<?php echo $this->task['id'] ?>">
+            <?php if ($this->task['status'] == 1): ?>
+                <span>выполнено</span>
+            <?php elseif ($this->task['status'] == 2): ?>
+                <span>отменено</span>
+            <?php else: ?>
+                <div class="btn done"><i class="fa fa-play"></i>Выполнить</div>
+
+                                                        <!-- <div class="btn later"><i class="fa fa-pause"></i>Отложить</div> -->
+
+                <div class="btn abort"><i class="fa fa-stop"></i>Отменить</div>
+            <?php endif ?>
+        </div>
+        <div class="task-message"></div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        $('#clear-task').click(function () {
+            $('#task').remove();
+        });
+        
+        $('.checkbox').click(function(){
+            var check_id = $(this).val();
+            var is_checked = $(this).prop('checked');
+            $.ajax({
+                url: '/calendar/ajax/update-check-list',
+                type: 'POST',
+                data: {
+                    check_id: check_id,
+                    is_checked: is_checked
+                }
+            });
+        });
+        $('.btn').click(function(){
+            var operation = $(this).attr('class');
+            $.ajax({
+                url: '/calendar/ajax/set-status',
+                type: 'POST',
+                data: {
+                    task_id: <?= $this->task['id'] ?>,
+                    operation: operation
+                }
+            });
+        });
+    });
+</script>

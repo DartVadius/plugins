@@ -1,0 +1,69 @@
+<?php if (isset($this->tasks) && (count($this->tasks['current']) > 0 || count($this->tasks['overdue']) > 0)): ?>
+    
+    <div class="timetable-title">Текущие задачи <span class="information-grey">( <?=count($this->tasks['current']); ?> )</span></div>
+    <?php if (count($this->tasks['current']) > 0): ?>
+        <div id="time-table" class="table">
+    		<?php foreach ($this->tasks['current'] as $task_id => $task): ?>
+    			<div class="task__element table-row animate-bg" data-task-id="<?php echo $task_id ?>">
+    				<div class="table-cell date_str">
+    					<?=$task['date_str']?>
+    				</div>
+    				<div class="table-cell time_str">
+    					<?=$task['time_str']?>
+    				</div>
+    				<div class="table-cell title">
+    					 <?php echo $task['title'] ?>
+    				</div>
+                    <div class="table-cell participants">
+    					 
+                         <?php if (!empty($task['contact_id'])): ?>
+                            <a class="task-created-info modal-contact-info" title="<?=$this->translate('Created by'); ?>: <?=$task['contact_name']; ?>" data-contact-id="<?=$task['contact_id']; ?>"><i class="fa fa-user fa-lg" aria-hidden="true"></i></a>
+                         <?php endif; ?>
+                         
+                         <?php if (!empty($task['curator'])): ?>
+                            <a class="task-curator-info modal-contact-info" title="<?=$this->translate('Curator'); ?>: <?=$task['curator_name']; ?>" data-contact-id="<?=$task['curator']; ?>"><i class="fa fa-user fa-lg" aria-hidden="true"></i></a>
+                         <?php endif; ?>
+                         
+                         <?php if (!empty($task['responsible'])): ?>
+                            <a class="task-responsible-info modal-contact-info" title="<?=$this->translate('Responsible'); ?>: <?=$task['responsible_name']; ?>" data-contact-id="<?=$task['responsible']; ?>"><i class="fa fa-user fa-lg" aria-hidden="true"></i></a>
+                         <?php endif; ?>
+                         
+                         <?php if (!empty($task['assistants'])): ?>
+                            <?php foreach($task['assistants'] as $contact_id => $assistant): ?>
+                                <a class="task-assistant-info modal-contact-info" title="<?=$this->translate('Assistant'); ?>: <?=$assistant['name']; ?>" data-contact-id="<?=$contact_id; ?>"><i class="fa fa-user fa-lg" aria-hidden="true"></i></a>
+                            <?php endforeach; ?>
+                         <?php endif; ?>
+                         
+                         
+    				</div>
+    			</div>
+    		<?php endforeach ?>
+        </div>
+    <?php else: ?>
+        <div class="no-values">Задач нет</div>
+    <?php endif; ?>
+    
+    <div class="timetable-title">Просроченные задачи <span class="information-grey">( <?=count($this->tasks['overdue']); ?> )</span></div>
+    <?php if (count($this->tasks['overdue']) > 0): ?>
+        <div id="time-table" class="table">
+    		<?php foreach ($this->tasks['overdue'] as $task_id => $task): ?>
+    			<div class="task__element table-row animate-bg" data-task-id="<?php echo $task_id ?>">
+    				<div class="table-cell date_str">
+    					<?=$task['date_str']?>
+    				</div>
+    				<div class="table-cell time_str">
+    					<?=$task['time_str']?>
+    				</div>
+    				<div class="table-cell title">
+    					 <?php echo $task['title'] ?>
+    				</div>
+    			</div>
+    		<?php endforeach ?>
+        </div>
+    <?php else: ?>
+        <div class="no-values">Задач нет</div>
+    <?php endif; ?>
+    
+<?php else: ?>
+    <div class="no-values">Задач нет</div>
+<?php endif; ?>

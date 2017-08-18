@@ -21,9 +21,6 @@ class HeybroPlugin extends Installer_Plugin {
     public function setCard($request, $data) {
 //        print_r($data);
 //        die;
-        if (!is_dir('cards')) {
-            mkdir('cards', 0777);
-        }
         chmod(APPLICATION_PATH . '/plugins/frontend/heybro/template/template.jpg', 0777);
         chmod('cards', 0777);
         $pluginModel = new Application_Model_DbTable_Plugins();

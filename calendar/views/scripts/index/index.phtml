@@ -1,0 +1,119 @@
+<?php
+$session = new Zend_Session_Namespace('calendar_filter');
+$user = new Zend_Session_Namespace('calendar_user_filter');
+?>
+<div class="row">
+
+    <div class="sidebar col-lg-2">
+        <div id="search-contact">
+            <div><?= $this->translate('Watch from'); ?> <span class="contact_role color-ligth-blue"><?= $user->user_name ?></span></div>
+            <div class="s-in">
+                <input class="form-control input-sm" type="text" name="userSearch" id="userSearch" placeholder="<?= mb_strtolower($this->translate('Client name'), 'utf8'); ?>?">
+                <i class="fa fa-times color-ligth-blue" id="clear-contact-id"></i>
+            </div>
+        </div>
+
+        <div id="calendar-filter">
+            <div class="tasks __element animate" data-event-type="task">
+                <input id="task_filter" type="checkbox" <?= ($session->filter['task']) ? 'checked' : '' ?> class="checkbox_filter" name="calendar_filter[]" value="task">
+                <span class="title"><?= mb_strtolower($this->translate->_('Tasks'), 'utf8'); ?></span>
+                <span class="qty"></span>
+            </div>
+            <div class="orders __element animate" data-event-type="order">
+                <input id="order_filter" type="checkbox" <?= ($session->filter['order']) ? 'checked' : '' ?> class="checkbox_filter" name="calendar_filter[]" value="order">
+                <span class="title"><?= mb_strtolower($this->translate->_('Orders'), 'utf8'); ?></span>
+                <span class="qty"></span>
+            </div>
+            <?php if (!empty($this->statuses)): ?>
+                <?php foreach ($this->statuses as $status): ?>
+                    <div class="orders __element animate" data-event-type="order">
+                        <input type="checkbox" <?= ($session->filter['order_status'][$status['id']] === TRUE) ? 'checked' : '' ?> <?= ($session->filter['order']) ? '' : 'disabled' ?> class="checkbox_filter order_filter" name="calendar_filter[]" value="<?= $status['id'] ?>">
+                        <span class="title"><?= mb_strtolower($this->translate->_($status['name']), 'utf8'); ?></span>
+                        <span class="qty"></span>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <div class="mails __element animate" data-event-type="mail">
+                <input id="mail_filter" type="checkbox" <?= ($session->filter['mail']) ? 'checked' : '' ?> class="checkbox_filter" name="calendar_filter[]" value="mail">
+                <span class="title"><?= mb_strtolower($this->translate->_('Mails'), 'utf8'); ?></span>
+                <span class="qty"></span>
+            </div>
+            <div class="mailer __element animate" data-event-type="mailer_project">
+                <input id="mailer_filter" type="checkbox" <?= ($session->filter['mailer']) ? 'checked' : '' ?> class="checkbox_filter" name="calendar_filter[]" value="mailer">
+                <span class="title"><?= mb_strtolower($this->translate->_('Mailer'), 'utf8'); ?></span>
+                <span class="qty"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content col-lg-10">
+        <?= $this->calendar ?>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.checkbox_filter').click(function (e) {
+            var filter = [];
+            $('#calendar-filter input:checkbox:checked').each(function () {
+                filter.push($(this).val());
+            });
+            console.log(filter);
+            $.ajax({
+                url: '/calendar/ajax/set-filter',
+                type: 'POST',
+                data: {
+                    filter: filter
+                },
+                success: function () {
+                    location.reload();
+                }
+            });
+        });
+        $('#userSearch').marcoPolo({
+            url: '/contact/search/calendar',
+            formatItem: function (data, $item) {
+//                console.log(data);
+                return data.name + ' ' + data.email;
+            },
+            onSelect: function (data, $item) {
+//                console.log(data.name);
+                this.val(data.name);
+                $.ajax({
+                    url: '/calendar/ajax/set-id-filter',
+                    type: 'POST',
+                    data: {
+                        user_id: data.id,
+                        user_name: data.name
+                    },
+                    success: function () {
+                        document.location.href = '/calendar/ajax/calendar';
+                    }
+                });
+//                window.location = data.profile_url;
+            }
+        });
+        $('#clear-contact-id').click(function () {
+            $.ajax({
+                url: '/calendar/ajax/clear-id-filter',
+                type: 'POST',
+                success: function () {
+                    location.reload();
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    translation1 = <?= json_encode($this->translate('Please wait')); ?>;
+    translation2 = <?= json_encode($this->translate('No child tasks completed')); ?>;
+    translation3 = <?= json_encode($this->translate('Not found. Data may have been deleted')); ?>;
+</script>
+
+<script>
+    translation1 = <?= json_encode($this->translate('Please wait')); ?>;
+    translation2 = <?= json_encode($this->translate('No child tasks completed')); ?>;
+    translation3 = <?= json_encode($this->translate('Not found. Data may have been deleted')); ?>;
+</script>
+

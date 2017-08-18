@@ -1,0 +1,18 @@
+<div id="task">
+    <div class="wrapper">
+        <i class="fa fa-times color-ligth-blue" id="clear-task"></i>
+        <?php foreach ($this->vizits as $key => $values): ?>
+            <h5><?php echo $key == 'products' ? 'Товары:' : 'Категории:'; ?></h5>
+            <?php foreach ($values as $id => $val): ?>
+                <div><a href="<?php echo $val['url'] ?>"><?php echo $val['name'] ?></a></div>	
+            <?php endforeach ?>
+        <?php endforeach ?>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#clear-task').click(function () {
+            $('#task').remove();
+        });
+    });
+</script>
