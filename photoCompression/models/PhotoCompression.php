@@ -34,7 +34,7 @@ class PhotoCompression_Model_PhotoCompression {
     }
 
     /**
-     * 
+     *
      * @return array
      */
     public function getConfig() {
@@ -56,9 +56,9 @@ class PhotoCompression_Model_PhotoCompression {
     }
 
     /**
-     * check out whether the image was compressed, and compresses it if not 
+     * check out whether the image was compressed, and compresses it if not
      *
-     * @param string $img   relative path to image
+     * @param string $img relative path to image
      *
      * @return boolean
      */
@@ -67,14 +67,16 @@ class PhotoCompression_Model_PhotoCompression {
         if (!empty($this->proxy)) {
             \Tinify\setProxy($this->proxy);
         }
-        $sourceData = file_get_contents(urldecode($img));
-        if ($sourceData) {
+        try {
+            $sourceData = file_get_contents(urldecode($img));
             $resultData = \Tinify\fromBuffer($sourceData)->toBuffer();
             file_put_contents($img, $resultData, LOCK_EX);
             $config = new PhotoCompression_Model_PhotoCompressionConfig();
             $config->insert(['path' => $img]);
+            return true;
+        } catch (DomainException $e) {
+            return false;
         }
-        return TRUE;
     }
 
     /**
@@ -92,6 +94,24 @@ class PhotoCompression_Model_PhotoCompression {
         return TRUE;
     }
 
+
+    /**
+     * validate api key to tinyPNG service
+     *
+     * @param string $key
+     *
+     * @return boolean
+     */
+    public function checkConfigApiKey($key = null) {
+        try {
+            \Tinify\setKey($key);
+            \Tinify\validate();
+        } catch (\Tinify\Exception $e) {
+            return FALSE;
+        }
+        return TRUE;
+    }
+
     /**
      * get array with all products Id's
      *
@@ -100,7 +120,7 @@ class PhotoCompression_Model_PhotoCompression {
     private function getProductIds() {
         $ids = [];
         $product = new Application_Model_DbTable_Products();
-        $products = $product->getAllProducts();
+        $products = $product->getAllProductsCols(['id']);
         if (!empty($products)) {
             foreach ($products as $value) {
                 $ids[] = $value['id'];
@@ -116,82 +136,49 @@ class PhotoCompression_Model_PhotoCompression {
      * @return boolean|array
      */
     public function getProductImgs() {
-        $product = new Frontend_Model_Product();
         $ids = $this->getProductIds();
-
         $imgArr = [];
-
         foreach ($ids as $id) {
             $prodImg = $this->getOneProductImgs($id);
             if ($prodImg) {
                 foreach ($prodImg as $pic) {
-                    $imgArr[] = $pic;
+                    if (!empty($pic)) {
+                        $imgArr[] = $pic;
+                    }
                 }
             }
         }
         if (!empty($imgArr)) {
             return $imgArr;
         }
-        return FALSE;
+        return false;
     }
 
     /**
      * get array with relative paths to images of current product
-     * 
-     * @param int $id           product ID
+     *
+     * @param int $id product ID
      * @return boolean|array
      */
     public function getOneProductImgs($id) {
-        $imgArr = [];
-        $newImgArr = [];
-        $product = new Frontend_Model_Product();
-        $imgs = $product->getProductImagesById($id);
-        if (!empty($imgs)) {
-            foreach ($imgs as $img) {
-                if (!empty($img['path'])) {
-                    $img['path'][0] = '';
-                    $imgArr[] = trim($img['path']);
-                }
-                if (!empty($img['path_48'])) {
-                    $img['path_48'][0] = '';
-                    $imgArr[] = trim($img['path_48']);
-                }
-                if (!empty($img['path_96'])) {
-                    $img['path_96'][0] = '';
-                    $imgArr[] = trim($img['path_96']);
-                }
-                if (!empty($img['path_320'])) {
-                    $img['path_320'][0] = '';
-                    $imgArr[] = trim($img['path_320']);
-                }
-                if (!empty($img['path_750'])) {
-                    $img['path_750'][0] = '';
-                    $imgArr[] = trim($img['path_750']);
-                }
-                if (!empty($img['path_970'])) {
-                    $img['path_970'][0] = '';
-                    $imgArr[] = trim($img['path_970']);
-                }
-            }
-        }
+        $product_images_model = new Shop_Model_ProductImages();
+
+        $images = $product_images_model->getImagesPathByProductId($id);
         $compressedImages = $this->getCompressedImgs();
 
         if ($compressedImages) {
-            $imgArr = array_diff($imgArr, $compressedImages);
+            $images = array_diff((array)$images, (array)$compressedImages);
         }
 
-        if (!empty($imgArr)) {
-            foreach ($imgArr as $value) {
-                $newImgArr[] = $value;
-            }
-            return $newImgArr;
+        if (!empty($images)) {
+            return $images;
         }
-        return FALSE;
+        return false;
     }
 
     /**
      * get array with photos extensions of categories  where keys are categories ID's
-     * 
+     *
      * @return boolean|array
      */
     private function getCategoriesIds() {
@@ -204,14 +191,14 @@ class PhotoCompression_Model_PhotoCompression {
                 $ids[$key]['category_logo'] = $value['category_logo'];
             }
         } else {
-            return FALSE;
+            return false;
         }
         return $ids;
     }
 
     /**
      * get array with relative paths to images of all categories
-     * 
+     *
      * @return boolean|array
      */
     public function getCategoriesImgs() {
@@ -219,23 +206,49 @@ class PhotoCompression_Model_PhotoCompression {
         $newImgArr = [];
         $url = 'modules/shop/category_img/';
         $ids = $this->getCategoriesIds();
+//        print_r($ids);
+//        die;
         if (!empty($ids)) {
             foreach ($ids as $id => $type) {
                 if (!empty($type['category_icon'])) {
-                    $imgArr[] = $url . $id . '/icon_' . $id . '.0x320.' . $type['category_icon'];
-                    $imgArr[] = $url . $id . '/icon_' . $id . '.200x0.' . $type['category_icon'];
-                    $imgArr[] = $url . $id . '/icon_' . $id . '.48x48.' . $type['category_icon'];
-                    $imgArr[] = $url . $id . '/icon_' . $id . '.750x0.' . $type['category_icon'];
-                    $imgArr[] = $url . $id . '/icon_' . $id . '.96x96.' . $type['category_icon'];
-                    $imgArr[] = $url . $id . '/icon_' . $id . '.970x970.' . $type['category_icon'];
+                    if (file_exists($url . $id . '/icon_' . $id . '.0x320.' . $type['category_icon'])) {
+                        $imgArr[] = $url . $id . '/icon_' . $id . '.0x320.' . $type['category_icon'];
+                    }
+                    if (file_exists($url . $id . '/icon_' . $id . '.200x0.' . $type['category_icon'])) {
+                        $imgArr[] = $url . $id . '/icon_' . $id . '.200x0.' . $type['category_icon'];
+                    }
+                    if (file_exists($url . $id . '/icon_' . $id . '.48x48.' . $type['category_icon'])) {
+                        $imgArr[] = $url . $id . '/icon_' . $id . '.48x48.' . $type['category_icon'];
+                    }
+                    if (file_exists($url . $id . '/icon_' . $id . '.750x0.' . $type['category_icon'])) {
+                        $imgArr[] = $url . $id . '/icon_' . $id . '.750x0.' . $type['category_icon'];
+                    }
+                    if (file_exists($url . $id . '/icon_' . $id . '.96x96.' . $type['category_icon'])) {
+                        $imgArr[] = $url . $id . '/icon_' . $id . '.96x96.' . $type['category_icon'];
+                    }
+                    if (file_exists($url . $id . '/icon_' . $id . '.970x970.' . $type['category_icon'])) {
+                        $imgArr[] = $url . $id . '/icon_' . $id . '.970x970.' . $type['category_icon'];
+                    }
                 }
                 if (!empty($type['category_logo'])) {
-                    $imgArr[] = $url . $id . '/logo_' . $id . '.0x320.' . $type['category_logo'];
-                    $imgArr[] = $url . $id . '/logo_' . $id . '.200x0.' . $type['category_logo'];
-                    $imgArr[] = $url . $id . '/logo_' . $id . '.48x48.' . $type['category_logo'];
-                    $imgArr[] = $url . $id . '/logo_' . $id . '.750x0.' . $type['category_logo'];
-                    $imgArr[] = $url . $id . '/logo_' . $id . '.96x96.' . $type['category_logo'];
-                    $imgArr[] = $url . $id . '/logo_' . $id . '.970x970.' . $type['category_logo'];
+                    if (file_exists($url . $id . '/logo_' . $id . '.0x320.' . $type['category_logo'])) {
+                        $imgArr[] = $url . $id . '/logo_' . $id . '.0x320.' . $type['category_logo'];
+                    }
+                    if (file_exists($url . $id . '/logo_' . $id . '.200x0.' . $type['category_logo'])) {
+                        $imgArr[] = $url . $id . '/logo_' . $id . '.200x0.' . $type['category_logo'];
+                    }
+                    if (file_exists($url . $id . '/logo_' . $id . '.48x48.' . $type['category_logo'])) {
+                        $imgArr[] = $url . $id . '/logo_' . $id . '.48x48.' . $type['category_logo'];
+                    }
+                    if (file_exists($url . $id . '/logo_' . $id . '.750x0.' . $type['category_logo'])) {
+                        $imgArr[] = $url . $id . '/logo_' . $id . '.750x0.' . $type['category_logo'];
+                    }
+                    if (file_exists($url . $id . '/logo_' . $id . '.96x96.' . $type['category_logo'])) {
+                        $imgArr[] = $url . $id . '/logo_' . $id . '.96x96.' . $type['category_logo'];
+                    }
+                    if (file_exists($url . $id . '/logo_' . $id . '.970x970.' . $type['category_logo'])) {
+                        $imgArr[] = $url . $id . '/logo_' . $id . '.970x970.' . $type['category_logo'];
+                    }
                 }
             }
         }
@@ -257,8 +270,8 @@ class PhotoCompression_Model_PhotoCompression {
 
     /**
      * get array with relative paths to images of current category
-     * 
-     * @param int $id           category ID
+     *
+     * @param int $id category ID
      * @return boolean|array
      */
     public function getOneCategoryImgs($id) {
@@ -268,20 +281,44 @@ class PhotoCompression_Model_PhotoCompression {
         $ids = $this->getCategoriesIds();
         if (!empty($ids[$id])) {
             if (!empty($ids[$id]['category_icon'])) {
-                $imgArr[] = $url . $id . '/icon_' . $id . '.0x320.' . $ids[$id]['category_icon'];
-                $imgArr[] = $url . $id . '/icon_' . $id . '.200x0.' . $ids[$id]['category_icon'];
-                $imgArr[] = $url . $id . '/icon_' . $id . '.48x48.' . $ids[$id]['category_icon'];
-                $imgArr[] = $url . $id . '/icon_' . $id . '.750x0.' . $ids[$id]['category_icon'];
-                $imgArr[] = $url . $id . '/icon_' . $id . '.96x96.' . $ids[$id]['category_icon'];
-                $imgArr[] = $url . $id . '/icon_' . $id . '.970x970.' . $ids[$id]['category_icon'];
+                if (file_exists($url . $id . '/icon_' . $id . '.0x320.' . $ids[$id]['category_icon'])) {
+                    $imgArr[] = $url . $id . '/icon_' . $id . '.0x320.' . $ids[$id]['category_icon'];
+                }
+                if (file_exists($url . $id . '/icon_' . $id . '.200x0.' . $ids[$id]['category_icon'])) {
+                    $imgArr[] = $url . $id . '/icon_' . $id . '.200x0.' . $ids[$id]['category_icon'];
+                }
+                if (file_exists($url . $id . '/icon_' . $id . '.48x48.' . $ids[$id]['category_icon'])) {
+                    $imgArr[] = $url . $id . '/icon_' . $id . '.48x48.' . $ids[$id]['category_icon'];
+                }
+                if (file_exists($url . $id . '/icon_' . $id . '.750x0.' . $ids[$id]['category_icon'])) {
+                    $imgArr[] = $url . $id . '/icon_' . $id . '.750x0.' . $ids[$id]['category_icon'];
+                }
+                if (file_exists($url . $id . '/icon_' . $id . '.96x96.' . $ids[$id]['category_icon'])) {
+                    $imgArr[] = $url . $id . '/icon_' . $id . '.96x96.' . $ids[$id]['category_icon'];
+                }
+                if (file_exists($url . $id . '/icon_' . $id . '.970x970.' . $ids[$id]['category_icon'])) {
+                    $imgArr[] = $url . $id . '/icon_' . $id . '.970x970.' . $ids[$id]['category_icon'];
+                }
             }
             if (!empty($ids[$id]['category_logo'])) {
-                $imgArr[] = $url . $id . '/logo_' . $id . '.0x320.' . $ids[$id]['category_logo'];
-                $imgArr[] = $url . $id . '/logo_' . $id . '.200x0.' . $ids[$id]['category_logo'];
-                $imgArr[] = $url . $id . '/logo_' . $id . '.48x48.' . $ids[$id]['category_logo'];
-                $imgArr[] = $url . $id . '/logo_' . $id . '.750x0.' . $ids[$id]['category_logo'];
-                $imgArr[] = $url . $id . '/logo_' . $id . '.96x96.' . $ids[$id]['category_logo'];
-                $imgArr[] = $url . $id . '/logo_' . $id . '.970x970.' . $ids[$id]['category_logo'];
+                if (file_exists($url . $id . '/logo_' . $id . '.0x320.' . $ids[$id]['category_logo'])) {
+                    $imgArr[] = $url . $id . '/logo_' . $id . '.0x320.' . $ids[$id]['category_logo'];
+                }
+                if (file_exists($url . $id . '/logo_' . $id . '.200x0.' . $ids[$id]['category_logo'])) {
+                    $imgArr[] = $url . $id . '/logo_' . $id . '.200x0.' . $ids[$id]['category_logo'];
+                }
+                if (file_exists($url . $id . '/logo_' . $id . '.48x48.' . $ids[$id]['category_logo'])) {
+                    $imgArr[] = $url . $id . '/logo_' . $id . '.48x48.' . $ids[$id]['category_logo'];
+                }
+                if (file_exists($url . $id . '/logo_' . $id . '.750x0.' . $ids[$id]['category_logo'])) {
+                    $imgArr[] = $url . $id . '/logo_' . $id . '.750x0.' . $ids[$id]['category_logo'];
+                }
+                if (file_exists($url . $id . '/logo_' . $id . '.96x96.' . $ids[$id]['category_logo'])) {
+                    $imgArr[] = $url . $id . '/logo_' . $id . '.96x96.' . $ids[$id]['category_logo'];
+                }
+                if (file_exists($url . $id . '/logo_' . $id . '.970x970.' . $ids[$id]['category_logo'])) {
+                    $imgArr[] = $url . $id . '/logo_' . $id . '.970x970.' . $ids[$id]['category_logo'];
+                }
             }
         } else {
             return FALSE;
@@ -302,9 +339,13 @@ class PhotoCompression_Model_PhotoCompression {
         return FALSE;
     }
 
+    private function ifFileExist($path) {
+        return file_exists($path);
+    }
+
     /**
      * get array with relative paths to compressed images
-     * 
+     *
      * @return boolean|array
      */
     private function getCompressedImgs() {
@@ -318,7 +359,7 @@ class PhotoCompression_Model_PhotoCompression {
             }
             return $compressedImgs;
         }
-        return FALSE;
+        return false;
     }
 
     public function removeDeadLinks() {
@@ -330,6 +371,12 @@ class PhotoCompression_Model_PhotoCompression {
             }
         }
         return TRUE;
+    }
+
+    public function getMonthCompressCount() {
+        \Tinify\setKey($this->api_key);
+        \Tinify\validate();
+        return \Tinify\compressionCount();
     }
 
 }

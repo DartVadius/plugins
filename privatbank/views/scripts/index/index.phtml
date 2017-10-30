@@ -1,0 +1,8 @@
+<p>Hello</p>
+<form method="POST" action="/privatbank/index/save" name="privatbank" class="form-group">
+    <input type="text" size="40" name="public_key" value="<?= $this->config['public_key'] ? $this->config['public_key'] : '' ?>" required><label name="public_key">&nbsp;&nbsp;Public Key</label><br><br>
+    <input type="text" size="40" name="private_key" value="<?= $this->config['private_key'] ? $this->config['private_key'] : '' ?>" required><label name="private_key">&nbsp;&nbsp;Private Key</label><br><br>
+    <label name="description">&nbsp;&nbsp;Purpose of payment</label><br>
+    <textarea rows="5" name="description" required><?= $this->config['description'] ? $this->config['description'] : '' ?></textarea><br><br>
+    <button type="submit" class="btn btn-primary">Сохранить настройки</button><br><br>
+</form>

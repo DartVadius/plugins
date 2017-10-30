@@ -39,8 +39,8 @@ class PhotoCompression_PhotoCompressionController extends Zend_Controller_Action
             $post = $this->_request->getPost();
 
             if (isset($post['prod_img'])) {
-                $photo->saveImg($post['prod_img']);
-                $this->_helper->json($post['prod_img']);
+                $data['result'] = $photo->saveImg($post['prod_img']);
+                $this->_helper->json($data);
             } else {
                 $data = $photo->getProductImgs();
                 $this->_helper->json($data);
@@ -55,12 +55,14 @@ class PhotoCompression_PhotoCompressionController extends Zend_Controller_Action
     public function compressProductAction() {
         $photo = new PhotoCompression_Model_PhotoCompression();
         $r = new Zend_Controller_Action_Helper_Redirector;
-
         $id = $this->getParam('id');
-        $imgs = $photo->getOneProductImgs($id);
-        if (!empty($imgs)) {
-            foreach ($imgs as $img) {
-                $photo->saveImg($img);
+
+        if ($photo->checkApiKey()) {
+            $imgs = $photo->getOneProductImgs($id);
+            if (!empty($imgs)) {
+                foreach ($imgs as $img) {
+                    $photo->saveImg($img);
+                }
             }
         }
         $r->gotoUrl('/shop/products/edit/id/' . $id)->redirectAndExit();
@@ -78,7 +80,8 @@ class PhotoCompression_PhotoCompressionController extends Zend_Controller_Action
             $post = $this->_request->getPost();
 
             if (isset($post['cat_img'])) {
-                $photo->saveImg($post['cat_img']);
+                $data['result'] = $photo->saveImg($post['cat_img']);
+                $this->_helper->json($data);
             } else {
                 $data = $photo->getCategoriesImgs();
                 $this->_helper->json($data);
@@ -95,10 +98,12 @@ class PhotoCompression_PhotoCompressionController extends Zend_Controller_Action
         $r = new Zend_Controller_Action_Helper_Redirector;
 
         $id = $this->getParam('id');
-        $imgs = $photo->getOneCategoryImgs($id);
-        if (!empty($imgs)) {
-            foreach ($imgs as $img) {
-                $photo->saveImg($img);
+        if ($photo->checkApiKey()) {
+            $imgs = $photo->getOneCategoryImgs($id);
+            if (!empty($imgs)) {
+                foreach ($imgs as $img) {
+                    $photo->saveImg($img);
+                }
             }
         }
         $r->gotoUrl('/shop/category/add-edit/product_id/' . $id)->redirectAndExit();
@@ -109,11 +114,12 @@ class PhotoCompression_PhotoCompressionController extends Zend_Controller_Action
      */
     public function checkApiKeyAction() {
         if ($this->getRequest()->isXmlHttpRequest()) {
-            Zend_Controller_Action_HelperBroker::removeHelper('viewRenderer');
+            $post = $this->_request->getPost();
 
+            Zend_Controller_Action_HelperBroker::removeHelper('viewRenderer');
             $photo = new PhotoCompression_Model_PhotoCompression();
 
-            if ($photo->checkApiKey()) {
+            if ($photo->checkConfigApiKey($post['key'])) {
                 $data = 1;
             } else {
                 $data = 0;
@@ -126,10 +132,16 @@ class PhotoCompression_PhotoCompressionController extends Zend_Controller_Action
     public function removeAction() {
         $photo = new PhotoCompression_Model_PhotoCompression();
         $r = new Zend_Controller_Action_Helper_Redirector;
-        
+
         $photo->removeDeadLinks();
 
         $r->gotoUrl('/photoCompression/photo-compression')->redirectAndExit();
+    }
+
+    public function getCountAction() {
+        $photo = new PhotoCompression_Model_PhotoCompression();
+        $data['count'] = $photo->getMonthCompressCount();
+        $this->_helper->json($data);
     }
 
 }

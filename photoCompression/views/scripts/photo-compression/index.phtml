@@ -33,16 +33,30 @@
     <button id="checkApi" value="" class="btn btn-primary">Проверить ключ</button>&nbsp;&nbsp;
     <span id="api_key_check"></span><br><br>
     <form method="POST" action="/photoCompression/photo-compression/save" name="photoCompressionConfig" class="form-group">
-        <input type="text" size="40" name="api_key" value="<?= $this->api_key ?>"><label name="api_key">&nbsp;&nbsp;TinyPNG API key</label><br><br>
+        <input type="text" size="40" id="api_key" name="api_key" value="<?= $this->api_key ?>"><label name="api_key">&nbsp;&nbsp;TinyPNG API key</label><br><br>
         <input type="text" size="40" name="proxy_set" value="<?= $this->proxy_set ?>"><label name="proxy_set">&nbsp;&nbsp;Proxy (например http://user:pass@192.168.0.1:8080)</label><br><br>
         <button type="submit" class="btn btn-primary">Сохранить настройки</button><br><br>
     </form>
+    <button id="get_count" class="btn btn-primary"><?= $this->translate('Pictures that compressed per month'); ?></button>
+</div>
+<div id="pic_count">
+
 </div>
 <table id="err_tab" class="table table-bordered">
     
 </table>
 <script>
     $(document).ready(function () {
+        $('#get_count').click(function () {
+            $.ajax({
+                url: "/photoCompression/photo-compression/get-count",
+                type: "POST",
+                success: function (response) {
+                    $('#pic_count').empty();
+                    $('#pic_count').html('<p>Картинок сжато в этом месяце: ' + response.count + '</p>');
+                }
+            });
+        });
         $('#compressProduct').on('click', function () {
             $.ajax({
                 url: "/photoCompression/photo-compression/compress-all-product",
@@ -66,7 +80,7 @@
                                 data: data,
                                 async: true,
                                 complete: function (XMLHTTPRequest) {
-                                    if (XMLHTTPRequest.status > 399) {                                   
+                                    if (XMLHTTPRequest.status > 399 || XMLHTTPRequest.responseJSON.result == false) {
                                         $('#err_tab').append('<tr><td>' + XMLHTTPRequest.status + '</td><td>' + XMLHTTPRequest.statusText + '</td><td>' + decodeURIComponent(this.data.replace("prod_img=","")) + '</td></tr>');                                        
                                         error++;
                                     }
@@ -113,7 +127,7 @@
                                 data: data,
                                 async: true,
                                 complete: function (XMLHTTPRequest) {
-                                    if (XMLHTTPRequest.status > 399) {                                   
+                                    if (XMLHTTPRequest.status > 399 || XMLHTTPRequest.responseJSON.result == false) {
                                         $('#err_tab').append('<tr><td>' + XMLHTTPRequest.status + '</td><td>' + XMLHTTPRequest.statusText + '</td><td>' + decodeURIComponent(this.data.replace("cat_img=","")) + '</td></tr>');                                        
                                         error++;
                                     }
@@ -138,9 +152,13 @@
         });
 
         $('#checkApi').on('click', function () {
+            var key = $('#api_key').val();
             $.ajax({
                 url: "/photoCompression/photo-compression/check-api-key",
                 type: "POST",
+                data: {
+                    key: key
+                },
                 success: function (respond) {
                     $('#api_key_check').empty().prop('class', '');
                     if (respond === 1) {

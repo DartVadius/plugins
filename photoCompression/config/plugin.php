@@ -4,10 +4,12 @@
  * Configure your plugin here
  */
 return [
-    'name' => 'photoCompression',
-    'description' => 'photo compression',
+    'name' => 'Photo compression',
+    'description' => 'Photo compression',
     'version' => 0.1,
     'enabled' => true,
+    'category' => 'shop',
+    'image' => 'img/image.png',
     'routes' => [
         'photo-compression_index' => [
             '/photo-compression_index',
@@ -39,6 +41,6 @@ return [
     ],
     'route_default' => 'photo-compression/index',
     'hooks' => [
-        'product_edit_tab_main_right_column' => ['setButtonCompressProduct']
+        'shop_products_edit_main_tab_right_column' => ['setButtonCompressProduct']
     ],
 ];
